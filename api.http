@@ -1,0 +1,72 @@
+### DayLog API 테스트
+
+@baseUrl = http://localhost:5000
+@date = 2026-04-01
+
+## Health Check
+GET {{baseUrl}}/api/health
+
+---
+
+## Todos API
+
+### 할일 추가
+POST {{baseUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "프로젝트 설정 완료",
+  "category": "work",
+  "date": "{{date}}"
+}
+
+### 할일 추가 (여러 개)
+POST {{baseUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Daily standup 진행",
+  "category": "meeting",
+  "date": "{{date}}"
+}
+
+### 날짜별 할일 조회
+GET {{baseUrl}}/api/todos?date={{date}}
+
+### 할일 완료 토글 (ID는 위 응답에서 복사)
+PATCH {{baseUrl}}/api/todos/[ID_HERE]
+Content-Type: application/json
+
+{}
+
+### 할일 삭제 (ID는 위 응답에서 복사)
+DELETE {{baseUrl}}/api/todos/[ID_HERE]
+
+---
+
+## Reflections API
+
+### 회고 작성
+POST {{baseUrl}}/api/reflections
+Content-Type: application/json
+
+{
+  "date": "{{date}}",
+  "done": "프로젝트 초기 세팅 완료\nTodo API 구현 완료",
+  "feeling": "매우 만족스러움",
+  "tomorrow": "클라이언트 API 연결"
+}
+
+### 특정 날짜 회고 조회
+GET {{baseUrl}}/api/reflections?date={{date}}
+
+### 기간별 회고 조회
+GET {{baseUrl}}/api/reflections?start=2026-03-25&end=2026-04-01
+
+### 회고 수정 (ID는 위 응답에서 복사)
+PATCH {{baseUrl}}/api/reflections/[ID_HERE]
+Content-Type: application/json
+
+{
+  "done": "프로젝트 초기 세팅 완료\nTodo API 구현 완료\nReflection API 구현 완료"
+}
