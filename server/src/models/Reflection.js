@@ -25,6 +25,18 @@ const reflectionSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  currentStreak: {
+    type: Number,
+    default: 0
+  },
+  bestStreak: {
+    type: Number,
+    default: 0
+  },
+  lastActiveDate: {
+    type: String,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

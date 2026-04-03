@@ -3,7 +3,15 @@ import Todo from '../models/Todo.js';
 // 날짜별 할일 조회
 export const getTodos = async (req, res) => {
   try {
-    const { date } = req.query;
+    const { date, start, end } = req.query;
+
+    // 기간별 조회
+    if (start && end) {
+      const todos = await Todo.find({
+        date: { $gte: start, $lte: end }
+      }).sort({ date: 1, createdAt: -1 });
+      return res.json(todos);
+    }
 
     if (!date) {
       return res.status(400).json({ error: '날짜를 입력해주세요 (YYYY-MM-DD)' });

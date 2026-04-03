@@ -1,4 +1,5 @@
 import Reflection from '../models/Reflection.js';
+import Todo from '../models/Todo.js';
 
 // 날짜별 회고 조회
 export const getReflectionByDate = async (req, res) => {
@@ -52,6 +53,10 @@ export const createReflection = async (req, res) => {
     });
 
     await reflection.save();
+
+    // 스트릭 업데이트
+    await updateStreak(date);
+
     res.status(201).json(reflection);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -79,8 +84,58 @@ export const updateReflection = async (req, res) => {
       return res.status(404).json({ error: '회고를 찾을 수 없습니다' });
     }
 
+    // 스트릭 업데이트
+    await updateStreak(reflection.date);
+
     res.json(reflection);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+// 스트릭 업데이트 함수
+const updateStreak = async (date) => {
+  try {
+    // 오늘 할일 완료 여부 체크
+    const completedTodos = await Todo.countDocuments({
+      date,
+      completed: true
+    });
+
+    // 회고 존재 여부 체크
+    const reflection = await Reflection.findOne({ date });
+
+    if (completedTodos > 0 && reflection) {
+      // 기존 스트릭 데이터 가져오기 (가장 최근 회고)
+      const lastReflection = await Reflection.findOne().sort({ date: -1 });
+
+      let currentStreak = 1;
+      let bestStreak = 1;
+      let lastActiveDate = date;
+
+      if (lastReflection && lastReflection.currentStreak) {
+        const yesterday = new Date(date);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+        if (lastReflection.lastActiveDate === yesterdayStr) {
+          // 연속이면 증가
+          currentStreak = lastReflection.currentStreak + 1;
+        } else {
+          // 끊기면 1로 리셋
+          currentStreak = 1;
+        }
+        bestStreak = Math.max(currentStreak, lastReflection.bestStreak || 0);
+      }
+
+      // 모든 회고의 스트릭 업데이트 (전체 기록 유지)
+      await Reflection.updateMany({}, {
+        currentStreak,
+        bestStreak,
+        lastActiveDate
+      });
+    }
+  } catch (error) {
+    console.error('Streak update error:', error);
   }
 };
