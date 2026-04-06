@@ -10,11 +10,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/daylog';
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
+const ALLOWED_ORIGINS = [
+  'https://day-log-client.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+];
 
 // Middleware
 app.use(cors({
-  origin: [CLIENT_URL, 'http://localhost:3000'],
+  origin: (origin, callback) => {
+    // origin이 없는 경우 (curl, Postman 등 non-browser 요청) 허용
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: ${origin} is not allowed`));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
