@@ -22,7 +22,7 @@ const CATEGORY_COLORS = {
 export default function ReflectionSection({ date, onReflectionUpdate }) {
   const today = new Date().toISOString().split('T')[0]
   const targetDate = date || today
-  const isReadOnly = targetDate < today
+  const isReadOnly = false
   const isFuture = targetDate > today
 
   const tomorrowDate = (() => {

@@ -24,6 +24,21 @@ const CATEGORY_LABEL_MAP = {
 }
 
 const MOOD_EMOJIS = { 1: '😫', 2: '😔', 3: '😐', 4: '😊', 5: '😄' }
+const MOOD_BG = {
+  5: '#dcfce7',
+  4: '#ecfccb',
+  3: '#fef9c3',
+  2: '#ffedd5',
+  1: '#fee2e2',
+}
+const MOOD_BORDER = {
+  5: '#86efac',
+  4: '#bef264',
+  3: '#fde047',
+  2: '#fdba74',
+  1: '#fca5a5',
+}
+
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 
 const getWeekStart = (date) => {
@@ -44,7 +59,6 @@ export default function CalendarView({ onDateClick, selectedDate }) {
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
 
-  // Week-related derived values
   const weekStartDate = getWeekStart(currentDate)
   const weekStartStr = weekStartDate.toISOString().split('T')[0]
   const weekDays = Array.from({ length: 7 }, (_, i) => {
@@ -234,6 +248,8 @@ export default function CalendarView({ onDateClick, selectedDate }) {
               const isSaturday = (idx % 7) === 6
               const categoryStats = getCategoryStats(dateStr)
               const reflection = reflectionsByDate[dateStr]
+              const moodBg = (!isFuture && reflection?.mood) ? MOOD_BG[reflection.mood] : null
+              const moodBorder = (!isFuture && reflection?.mood) ? MOOD_BORDER[reflection.mood] : null
 
               const classes = [
                 'calendar-day-full',
@@ -243,8 +259,12 @@ export default function CalendarView({ onDateClick, selectedDate }) {
                 categoryStats ? 'has-data' : '',
               ].filter(Boolean).join(' ')
 
+              const cellStyle = moodBg && !isToday && !isSelected
+                ? { backgroundColor: moodBg, borderColor: moodBorder }
+                : undefined
+
               return (
-                <div key={dateStr} className={classes} onClick={() => onDateClick(dateStr)} title={dateStr}>
+                <div key={dateStr} className={classes} style={cellStyle} onClick={() => onDateClick(dateStr)} title={dateStr}>
                   <div className="day-top">
                     <span className={`day-num${isSunday ? ' sun' : isSaturday ? ' sat' : ''}`}>{day}</span>
                     {reflection && <span className="day-mood-icon">{MOOD_EMOJIS[reflection.mood] || '😐'}</span>}
@@ -266,6 +286,9 @@ export default function CalendarView({ onDateClick, selectedDate }) {
               const isSaturday = idx === 6
               const categoryStats = getCategoryStats(dateStr)
               const reflection = reflectionsByDate[dateStr]
+              const dayTodos = todosByDate[dateStr] || []
+              const moodBg = (!isFuture && reflection?.mood) ? MOOD_BG[reflection.mood] : null
+              const moodBorder = (!isFuture && reflection?.mood) ? MOOD_BORDER[reflection.mood] : null
 
               const classes = [
                 'calendar-week-day',
@@ -275,8 +298,12 @@ export default function CalendarView({ onDateClick, selectedDate }) {
                 categoryStats ? 'has-data' : '',
               ].filter(Boolean).join(' ')
 
+              const cellStyle = moodBg && !isToday && !isSelected
+                ? { backgroundColor: moodBg, borderColor: moodBorder }
+                : undefined
+
               return (
-                <div key={dateStr} className={classes} onClick={() => onDateClick(dateStr)}>
+                <div key={dateStr} className={classes} style={cellStyle} onClick={() => onDateClick(dateStr)}>
                   <div className="week-day-header">
                     <span className={`week-day-name${isSunday ? ' sun' : isSaturday ? ' sat' : ''}`}>
                       {WEEKDAYS[idx]}
@@ -286,23 +313,20 @@ export default function CalendarView({ onDateClick, selectedDate }) {
                     </span>
                   </div>
 
-                  {categoryStats ? (
-                    <div className="week-day-bars">
-                      {Object.entries(categoryStats).map(([cat, stats]) => {
-                        const pct = isFuture ? 100 : Math.round((stats.completed / stats.total) * 100)
-                        const barColor = isFuture ? '#d1d5db' : (CATEGORY_COLORS[cat] || '#94a3b8')
-                        return (
-                          <div key={cat} className="week-bar-row">
-                            <span className="week-bar-label">{CATEGORY_LABEL_MAP[cat]?.[0]}</span>
-                            <div className="week-bar-track">
-                              <div className="week-bar-fill" style={{ width: `${pct}%`, backgroundColor: barColor }} />
-                            </div>
-                            <span className="week-bar-pct">
-                              {isFuture ? `${stats.total}` : `${pct}%`}
-                            </span>
-                          </div>
-                        )
-                      })}
+                  {dayTodos.length > 0 ? (
+                    <div className="week-day-todos">
+                      {dayTodos.slice(0, 3).map(todo => (
+                        <div
+                          key={todo._id}
+                          className={`week-todo-title${todo.completed ? ' completed' : ''}`}
+                          style={{ borderLeftColor: CATEGORY_COLORS[todo.category] || '#94a3b8' }}
+                        >
+                          {todo.title}
+                        </div>
+                      ))}
+                      {dayTodos.length > 3 && (
+                        <div className="week-todo-more">+{dayTodos.length - 3}개 더</div>
+                      )}
                     </div>
                   ) : (
                     <div className="week-day-empty">일정 없음</div>

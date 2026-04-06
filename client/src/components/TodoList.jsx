@@ -4,7 +4,6 @@ import axios from 'axios'
 export default function TodoList({ date }) {
   const today = new Date().toISOString().split('T')[0]
   const targetDate = date || today
-  const isReadOnly = targetDate < today
 
   const [todos, setTodos] = useState([])
   const [newTodo, setNewTodo] = useState('')
@@ -133,13 +132,11 @@ export default function TodoList({ date }) {
 
   return (
     <div className="panel">
-      <h2 className="panel-title">
-        📝 {isReadOnly ? '할일' : '오늘의 할일'}
-      </h2>
+      <h2 className="panel-title">📝 할일</h2>
 
       {error && <div className="error-message">⚠️ {error}</div>}
 
-      {!isReadOnly && frequentTodos.length > 0 && (
+      {frequentTodos.length > 0 && (
         <div className="frequent-todos">
           {frequentTodos.map((item, idx) => (
             <button
@@ -156,47 +153,43 @@ export default function TodoList({ date }) {
         </div>
       )}
 
-      {!isReadOnly && (
-        <div className="todo-input-group">
-          <input
-            type="text"
-            placeholder="새로운 할일을 입력하세요..."
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()}
-            className="todo-input"
-            disabled={loading}
-          />
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="category-select"
-            disabled={loading}
-          >
-            <option value="work">업무</option>
-            <option value="study">학습</option>
-            <option value="health">건강</option>
-            <option value="life">생활</option>
-            <option value="hobby">취미</option>
-            <option value="etc">기타</option>
-          </select>
-          <button
-            onClick={() => handleAddTodo()}
-            className="btn btn-primary"
-            disabled={loading}
-          >
-            {loading ? '추가중...' : '추가'}
-          </button>
-        </div>
-      )}
+      <div className="todo-input-group">
+        <input
+          type="text"
+          placeholder="새로운 할일을 입력하세요..."
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()}
+          className="todo-input"
+          disabled={loading}
+        />
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="category-select"
+          disabled={loading}
+        >
+          <option value="work">업무</option>
+          <option value="study">학습</option>
+          <option value="health">건강</option>
+          <option value="life">생활</option>
+          <option value="hobby">취미</option>
+          <option value="etc">기타</option>
+        </select>
+        <button
+          onClick={() => handleAddTodo()}
+          className="btn btn-primary"
+          disabled={loading}
+        >
+          {loading ? '추가중...' : '추가'}
+        </button>
+      </div>
 
       <div className="todo-list">
         {loading && todos.length === 0 ? (
           <p className="empty-state">로딩 중...</p>
         ) : totalTodos === 0 ? (
-          <p className="empty-state">
-            {isReadOnly ? '이 날의 할일이 없습니다' : '할일이 없습니다. 새로운 할일을 추가해보세요!'}
-          </p>
+          <p className="empty-state">할일이 없습니다. 새로운 할일을 추가해보세요!</p>
         ) : (
           Object.entries(groupedTodos).map(([cat, categoryTodos]) => {
             if (categoryTodos.length === 0) return null
@@ -241,9 +234,9 @@ export default function TodoList({ date }) {
                           <input
                             type="checkbox"
                             checked={todo.completed}
-                            onChange={() => !isReadOnly && toggleTodo(todo._id)}
+                            onChange={() => toggleTodo(todo._id)}
                             className="todo-checkbox"
-                            disabled={loading || isReadOnly}
+                            disabled={loading}
                           />
                           <div className="todo-text">
                             <span className={`todo-title ${todo.completed ? 'completed' : ''}`}>
@@ -251,15 +244,13 @@ export default function TodoList({ date }) {
                             </span>
                           </div>
                         </div>
-                        {!isReadOnly && (
-                          <button
-                            onClick={() => deleteTodo(todo._id)}
-                            className="btn btn-delete"
-                            disabled={loading}
-                          >
-                            삭제
-                          </button>
-                        )}
+                        <button
+                          onClick={() => deleteTodo(todo._id)}
+                          className="btn btn-delete"
+                          disabled={loading}
+                        >
+                          삭제
+                        </button>
                       </div>
                     ))}
                   </div>
