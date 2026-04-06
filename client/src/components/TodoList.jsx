@@ -181,7 +181,7 @@ export default function TodoList({ date }) {
             <option value="etc">기타</option>
           </select>
           <button
-            onClick={handleAddTodo}
+            onClick={() => handleAddTodo()}
             className="btn btn-primary"
             disabled={loading}
           >
