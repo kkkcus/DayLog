@@ -3,7 +3,6 @@ import './App.css'
 import TodoList from './components/TodoList'
 import ReflectionSection from './components/ReflectionSection'
 import CalendarView from './components/CalendarView'
-import DayDetailModal from './components/DayDetailModal'
 
 const API_URL = (import.meta.env.VITE_API_URL || '') + '/api'
 
@@ -13,11 +12,16 @@ const TABS = [
   { id: 'reflection', label: '회고' },
 ]
 
+const formatDate = (dateStr) => {
+  const [y, m, d] = dateStr.split('-')
+  return `${y}년 ${parseInt(m)}월 ${parseInt(d)}일`
+}
+
 function App() {
   const today = new Date().toISOString().split('T')[0]
   const [activeTab, setActiveTab] = useState('calendar')
   const [streak, setStreak] = useState({ current: 0, best: 0 })
-  const [modalDate, setModalDate] = useState(null)
+  const [selectedDate, setSelectedDate] = useState(today)
 
   useEffect(() => {
     fetchStreak()
@@ -38,6 +42,13 @@ function App() {
       console.error('Failed to fetch streak:', error)
     }
   }
+
+  const handleDateClick = (date) => {
+    setSelectedDate(date)
+    setActiveTab('todo')
+  }
+
+  const isViewingToday = selectedDate === today
 
   return (
     <div className="app">
@@ -65,33 +76,51 @@ function App() {
       </header>
 
       <main className="main">
-        {/* 캘린더는 항상 마운트 유지 (월 데이터 상태 보존) */}
         <div style={{ display: activeTab === 'calendar' ? 'block' : 'none' }}>
           <CalendarView
-            onDateClick={setModalDate}
-            selectedDate={modalDate}
+            onDateClick={handleDateClick}
+            selectedDate={selectedDate}
           />
         </div>
 
         {activeTab === 'todo' && (
           <div className="panel-wrap">
-            <TodoList date={today} />
+            <div className="date-header">
+              <span className="date-header-label">
+                {isViewingToday ? '오늘의 기록' : `${formatDate(selectedDate)}의 기록`}
+              </span>
+              {!isViewingToday && (
+                <button
+                  className="today-return-btn"
+                  onClick={() => setSelectedDate(today)}
+                >
+                  오늘로 돌아가기
+                </button>
+              )}
+            </div>
+            <TodoList date={selectedDate} />
           </div>
         )}
 
         {activeTab === 'reflection' && (
           <div className="panel-wrap">
-            <ReflectionSection date={today} onReflectionUpdate={fetchStreak} />
+            <div className="date-header">
+              <span className="date-header-label">
+                {isViewingToday ? '오늘의 기록' : `${formatDate(selectedDate)}의 기록`}
+              </span>
+              {!isViewingToday && (
+                <button
+                  className="today-return-btn"
+                  onClick={() => setSelectedDate(today)}
+                >
+                  오늘로 돌아가기
+                </button>
+              )}
+            </div>
+            <ReflectionSection date={selectedDate} onReflectionUpdate={fetchStreak} />
           </div>
         )}
       </main>
-
-      {modalDate && (
-        <DayDetailModal
-          date={modalDate}
-          onClose={() => setModalDate(null)}
-        />
-      )}
     </div>
   )
 }
