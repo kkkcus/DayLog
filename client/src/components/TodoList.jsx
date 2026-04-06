@@ -9,7 +9,6 @@ export default function TodoList({ date }) {
   const [todos, setTodos] = useState([])
   const [newTodo, setNewTodo] = useState('')
   const [category, setCategory] = useState('work')
-  const [todoTime, setTodoTime] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [frequentTodos, setFrequentTodos] = useState([])
@@ -93,12 +92,10 @@ export default function TodoList({ date }) {
         title,
         category: cat,
         date: targetDate,
-        ...(todoTime && !titleOverride ? { time: todoTime } : {})
       })
       setTodos([...todos, response.data])
       if (!titleOverride) {
         setNewTodo('')
-        setTodoTime('')
       }
     } catch (err) {
       setError('할일 추가에 실패했습니다')
@@ -169,14 +166,6 @@ export default function TodoList({ date }) {
             onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()}
             className="todo-input"
             disabled={loading}
-          />
-          <input
-            type="time"
-            value={todoTime}
-            onChange={(e) => setTodoTime(e.target.value)}
-            className="time-input"
-            disabled={loading}
-            title="시간 설정 (선택)"
           />
           <select
             value={category}
@@ -257,9 +246,6 @@ export default function TodoList({ date }) {
                             disabled={loading || isReadOnly}
                           />
                           <div className="todo-text">
-                            {todo.time && (
-                              <span className="todo-time-badge">{todo.time}</span>
-                            )}
                             <span className={`todo-title ${todo.completed ? 'completed' : ''}`}>
                               {todo.title}
                             </span>
