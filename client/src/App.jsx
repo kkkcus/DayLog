@@ -3,11 +3,21 @@ import './App.css'
 import TodoList from './components/TodoList'
 import ReflectionSection from './components/ReflectionSection'
 import CalendarView from './components/CalendarView'
+import DayDetailModal from './components/DayDetailModal'
+
+const API_URL = (import.meta.env.VITE_API_URL || '') + '/api'
+
+const TABS = [
+  { id: 'calendar', label: '캘린더' },
+  { id: 'todo', label: '할일' },
+  { id: 'reflection', label: '회고' },
+]
 
 function App() {
   const today = new Date().toISOString().split('T')[0]
-  const [selectedDate, setSelectedDate] = useState(today)
+  const [activeTab, setActiveTab] = useState('calendar')
   const [streak, setStreak] = useState({ current: 0, best: 0 })
+  const [modalDate, setModalDate] = useState(null)
 
   useEffect(() => {
     fetchStreak()
@@ -15,9 +25,9 @@ function App() {
 
   const fetchStreak = async () => {
     try {
-      const response = await fetch('/api/reflections?start=2020-01-01&end=2030-12-31')
+      const response = await fetch(`${API_URL}/reflections?start=2020-01-01&end=2030-12-31`)
       const reflections = await response.json()
-      if (reflections.length > 0) {
+      if (Array.isArray(reflections) && reflections.length > 0) {
         const latest = reflections[0]
         setStreak({
           current: latest.currentStreak || 0,
@@ -29,69 +39,59 @@ function App() {
     }
   }
 
-  const handleDateClick = (date) => {
-    setSelectedDate(date)
-    // 상단으로 부드럽게 스크롤
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const isViewingOther = selectedDate !== today
-  const isViewingFuture = selectedDate > today
-
-  const formatSelectedDate = (dateStr) => {
-    const d = new Date(dateStr + 'T00:00:00')
-    return d.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      weekday: 'short'
-    })
-  }
-
   return (
     <div className="app">
       <header className="header">
-        <h1>📓 DayLog</h1>
-        <p className="subtitle">당신의 하루를 기록하세요</p>
-        {streak.current > 0 && (
-          <div className="streak-display">
-            🔥 {streak.current}일 연속 (최고: {streak.best}일)
-          </div>
-        )}
+        <div className="header-top">
+          <h1 className="logo">DayLog</h1>
+          {streak.current > 0 && (
+            <div className="streak-display">
+              🔥 {streak.current}일 연속
+              <span className="streak-best">최고 {streak.best}일</span>
+            </div>
+          )}
+        </div>
+        <nav className="tab-nav">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              className={`tab-btn${activeTab === tab.id ? ' active' : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
       </header>
 
       <main className="main">
-        {isViewingOther && (
-          <div className="date-nav-bar">
-            <span className="date-nav-label">
-              {isViewingFuture ? '📅' : '🔍'} {formatSelectedDate(selectedDate)} 보는 중
-              {' • '}{isViewingFuture ? '할일 미리 추가 가능' : '읽기 전용'}
-            </span>
-            <button
-              className="btn-back-today"
-              onClick={() => setSelectedDate(today)}
-            >
-              오늘로 돌아가기 →
-            </button>
+        {/* 캘린더는 항상 마운트 유지 (월 데이터 상태 보존) */}
+        <div style={{ display: activeTab === 'calendar' ? 'block' : 'none' }}>
+          <CalendarView
+            onDateClick={setModalDate}
+            selectedDate={modalDate}
+          />
+        </div>
+
+        {activeTab === 'todo' && (
+          <div className="panel-wrap">
+            <TodoList date={today} />
           </div>
         )}
 
-        <div className="dashboard-container">
-          <div className="left-panel">
-            <TodoList date={selectedDate} />
+        {activeTab === 'reflection' && (
+          <div className="panel-wrap">
+            <ReflectionSection date={today} onReflectionUpdate={fetchStreak} />
           </div>
-          <div className="right-panel">
-            <ReflectionSection date={selectedDate} onReflectionUpdate={fetchStreak} />
-          </div>
-        </div>
-
-        <div className="calendar-section">
-          <CalendarView
-            onDateClick={handleDateClick}
-            selectedDate={selectedDate}
-          />
-        </div>
+        )}
       </main>
+
+      {modalDate && (
+        <DayDetailModal
+          date={modalDate}
+          onClose={() => setModalDate(null)}
+        />
+      )}
     </div>
   )
 }
