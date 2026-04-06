@@ -9,12 +9,13 @@ const moodStages = [
   { level: 1, label: '최악', emoji: '😫', color: '#ef4444' }
 ]
 
-const CATEGORY_LABELS = { work: '업무', study: '학습', health: '건강', life: '생활', etc: '기타' }
+const CATEGORY_LABELS = { work: '업무', study: '학습', health: '건강', life: '생활', hobby: '취미', etc: '기타' }
 const CATEGORY_COLORS = {
   work: '#3b82f6',
   study: '#8b5cf6',
   health: '#10b981',
   life: '#f59e0b',
+  hobby: '#ec4899',
   etc: '#6b7280'
 }
 

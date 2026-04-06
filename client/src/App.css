@@ -86,6 +86,38 @@ body {
   flex-shrink: 0;
 }
 
+/* Frequent Todos */
+.frequent-todos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+  flex-shrink: 0;
+}
+
+.frequent-tag {
+  padding: 0.3rem 0.7rem;
+  border: 1.5px solid;
+  border-radius: 20px;
+  background: white;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.frequent-tag:hover {
+  opacity: 0.75;
+  transform: translateY(-1px);
+}
+
+.frequent-tag:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Todo Section */
 .todo-input-group {
   display: flex;
@@ -923,8 +955,18 @@ body {
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
 }
 
-.calendar-day-full.future {
-  opacity: 0.55;
+.calendar-day-full.future:not(.has-data) {
+  opacity: 0.45;
+}
+
+.calendar-day-full.future.has-data {
+  opacity: 0.9;
+}
+
+.calendar-day-full.future.has-data:hover {
+  border-color: #9ca3af;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
 }
 
 .calendar-day-full.has-data:not(.future):hover {

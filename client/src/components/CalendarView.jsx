@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 
 const CATEGORY_COLORS = {
-  work: '#667eea',
-  study: '#f59e0b',
-  health: '#22c55e',
-  life: '#ec4899',
-  etc: '#94a3b8',
+  work: '#3b82f6',
+  study: '#8b5cf6',
+  health: '#10b981',
+  life: '#f59e0b',
+  hobby: '#ec4899',
+  etc: '#6b7280',
   general: '#94a3b8'
 }
 
@@ -15,6 +16,7 @@ const CATEGORY_LABEL_MAP = {
   study: '학습',
   health: '건강',
   life: '생활',
+  hobby: '취미',
   etc: '기타',
   general: '일반'
 }
@@ -152,18 +154,21 @@ export default function CalendarView({ onDateClick, selectedDate }) {
                 {categoryStats && (
                   <div className="day-bars">
                     {Object.entries(categoryStats).map(([cat, stats]) => {
-                      const pct = Math.round((stats.completed / stats.total) * 100)
+                      const pct = isFuture ? 100 : Math.round((stats.completed / stats.total) * 100)
+                      const barColor = isFuture ? '#d1d5db' : (CATEGORY_COLORS[cat] || '#94a3b8')
                       return (
                         <div
                           key={cat}
                           className="mini-bar-track"
-                          title={`${CATEGORY_LABEL_MAP[cat] || cat}: ${stats.completed}/${stats.total} (${pct}%)`}
+                          title={isFuture
+                            ? `${CATEGORY_LABEL_MAP[cat] || cat}: ${stats.total}개 예정`
+                            : `${CATEGORY_LABEL_MAP[cat] || cat}: ${stats.completed}/${stats.total} (${pct}%)`}
                         >
                           <div
                             className="mini-bar-fill"
                             style={{
                               width: `${pct}%`,
-                              backgroundColor: CATEGORY_COLORS[cat] || '#94a3b8'
+                              backgroundColor: barColor
                             }}
                           />
                         </div>

@@ -11,6 +11,7 @@ export default function TodoList({ date }) {
   const [category, setCategory] = useState('work')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [frequentTodos, setFrequentTodos] = useState([])
   const [expandedCategories, setExpandedCategories] = useState({
     work: true,
     study: true,
@@ -26,12 +27,26 @@ export default function TodoList({ date }) {
     study: { label: '학습', color: '#8b5cf6', bgColor: '#ede9fe' },
     health: { label: '건강', color: '#10b981', bgColor: '#d1fae5' },
     life: { label: '생활', color: '#f59e0b', bgColor: '#fef3c7' },
+    hobby: { label: '취미', color: '#ec4899', bgColor: '#fce7f3' },
     etc: { label: '기타', color: '#6b7280', bgColor: '#f3f4f6' }
   }
 
   useEffect(() => {
     fetchTodos()
   }, [targetDate])
+
+  useEffect(() => {
+    fetchFrequentTodos()
+  }, [])
+
+  const fetchFrequentTodos = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/todos/frequent`)
+      setFrequentTodos(response.data)
+    } catch (err) {
+      console.error('Error fetching frequent todos:', err)
+    }
+  }
 
   const fetchTodos = async () => {
     try {
@@ -48,7 +63,7 @@ export default function TodoList({ date }) {
   }
 
   const groupTodosByCategory = () => {
-    const grouped = { work: [], study: [], health: [], life: [], etc: [] }
+    const grouped = { work: [], study: [], health: [], life: [], hobby: [], etc: [] }
     todos.forEach(todo => {
       const cat = todo.category || 'etc'
       if (grouped[cat]) grouped[cat].push(todo)
@@ -67,17 +82,19 @@ export default function TodoList({ date }) {
     setExpandedCategories(prev => ({ ...prev, [cat]: !prev[cat] }))
   }
 
-  const handleAddTodo = async () => {
-    if (!newTodo.trim()) return
+  const handleAddTodo = async (titleOverride, categoryOverride) => {
+    const title = titleOverride ?? newTodo
+    const cat = categoryOverride ?? category
+    if (!title.trim()) return
     try {
       setError(null)
       const response = await axios.post(`${API_URL}/todos`, {
-        title: newTodo,
-        category,
+        title,
+        category: cat,
         date: targetDate
       })
       setTodos([...todos, response.data])
-      setNewTodo('')
+      if (!titleOverride) setNewTodo('')
     } catch (err) {
       setError('할일 추가에 실패했습니다')
       console.error('Error adding todo:', err)
@@ -97,7 +114,6 @@ export default function TodoList({ date }) {
   }
 
   const deleteTodo = async (id) => {
-    if (!window.confirm('정말 삭제하시겠습니까?')) return
     try {
       setError(null)
       await axios.delete(`${API_URL}/todos/${id}`)
@@ -121,6 +137,23 @@ export default function TodoList({ date }) {
 
       {error && <div className="error-message">⚠️ {error}</div>}
 
+      {!isReadOnly && frequentTodos.length > 0 && (
+        <div className="frequent-todos">
+          {frequentTodos.map((item, idx) => (
+            <button
+              key={idx}
+              className="frequent-tag"
+              style={{ borderColor: categoryInfo[item.category]?.color || '#6b7280', color: categoryInfo[item.category]?.color || '#6b7280' }}
+              onClick={() => handleAddTodo(item.title, item.category)}
+              disabled={loading}
+              title={`${categoryInfo[item.category]?.label || item.category} · ${item.count}회 사용`}
+            >
+              {item.title}
+            </button>
+          ))}
+        </div>
+      )}
+
       {!isReadOnly && (
         <div className="todo-input-group">
           <input
@@ -142,6 +175,7 @@ export default function TodoList({ date }) {
             <option value="study">학습</option>
             <option value="health">건강</option>
             <option value="life">생활</option>
+            <option value="hobby">취미</option>
             <option value="etc">기타</option>
           </select>
           <button

@@ -65,6 +65,33 @@ export const toggleTodo = async (req, res) => {
   }
 };
 
+// 자주 쓰는 할일 집계
+export const getFrequentTodos = async (_req, res) => {
+  try {
+    const results = await Todo.aggregate([
+      {
+        $group: {
+          _id: { title: '$title', category: '$category' },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } },
+      { $limit: 6 },
+      {
+        $project: {
+          _id: 0,
+          title: '$_id.title',
+          category: '$_id.category',
+          count: 1
+        }
+      }
+    ]);
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // 할일 삭제
 export const deleteTodo = async (req, res) => {
   try {

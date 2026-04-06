@@ -3,11 +3,13 @@ import {
   getTodos,
   createTodo,
   toggleTodo,
-  deleteTodo
+  deleteTodo,
+  getFrequentTodos
 } from '../controllers/todoController.js';
 
 const router = express.Router();
 
+router.get('/frequent', getFrequentTodos);
 router.get('/', getTodos);
 router.post('/', createTodo);
 router.patch('/:id', toggleTodo);
