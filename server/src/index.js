@@ -10,9 +10,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/daylog';
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [CLIENT_URL, 'http://localhost:3000'],
+  credentials: true,
+}));
 app.use(express.json());
 
 // MongoDB 연결

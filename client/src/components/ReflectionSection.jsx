@@ -44,7 +44,7 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
   const [tomorrowCategory, setTomorrowCategory] = useState('work')
   const [tomorrowLoading, setTomorrowLoading] = useState(false)
 
-  const API_URL = '/api'
+  const API_URL = (import.meta.env.VITE_API_URL || '') + '/api'
 
   useEffect(() => {
     fetchReflection()

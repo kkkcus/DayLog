@@ -20,7 +20,7 @@ export default function TodoList({ date }) {
     etc: true
   })
 
-  const API_URL = '/api'
+  const API_URL = (import.meta.env.VITE_API_URL || '') + '/api'
 
   const categoryInfo = {
     work: { label: '업무', color: '#3b82f6', bgColor: '#dbeafe' },

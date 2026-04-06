@@ -22,6 +22,7 @@ const CATEGORY_LABEL_MAP = {
 }
 
 const MOOD_EMOJIS = { 1: '😫', 2: '😔', 3: '😐', 4: '😊', 5: '😄' }
+const API_URL = (import.meta.env.VITE_API_URL || '') + '/api'
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 
 export default function CalendarView({ onDateClick, selectedDate }) {
@@ -46,8 +47,8 @@ export default function CalendarView({ onDateClick, selectedDate }) {
 
     try {
       const [todosRes, reflectionsRes] = await Promise.allSettled([
-        axios.get(`/api/todos?start=${startDate}&end=${endDate}`),
-        axios.get(`/api/reflections?start=${startDate}&end=${endDate}`)
+        axios.get(`${API_URL}/todos?start=${startDate}&end=${endDate}`),
+        axios.get(`${API_URL}/reflections?start=${startDate}&end=${endDate}`)
       ])
 
       if (todosRes.status === 'fulfilled') {

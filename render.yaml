@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: daylog-api
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false   # Render 대시보드에서 직접 입력
+      - key: CLIENT_URL
+        sync: false   # Vercel 배포 후 실제 URL 입력
