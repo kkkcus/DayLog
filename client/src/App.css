@@ -10,9 +10,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f5f6f8;
+  background: #f5f5f7;
   min-height: 100vh;
-  color: #111827;
+  color: #1f2937;
+  font-size: 14px;
 }
 
 /* ── App Shell ── */
@@ -25,8 +26,7 @@ body {
 /* ── Header ── */
 .header {
   background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -36,13 +36,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem 0.5rem;
+  padding: 1rem 1.5rem 0.6rem;
 }
 
 .logo {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  color: #111827;
+  color: #7c3aed;
   letter-spacing: -0.5px;
 }
 
@@ -50,26 +50,25 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #374151;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #7c3aed;
+  background: #ede9fe;
   border-radius: 20px;
   padding: 0.35rem 0.9rem;
 }
 
 .streak-best {
-  color: #9ca3af;
+  color: #a78bfa;
   font-weight: 500;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
 }
 
 /* ── Tab Navigation ── */
 .tab-nav {
   display: flex;
   padding: 0 1.5rem;
-  gap: 0;
+  border-bottom: 1.5px solid #e5e7eb;
 }
 
 .tab-btn {
@@ -80,18 +79,18 @@ body {
   font-weight: 600;
   color: #9ca3af;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
   transition: color 0.15s, border-color 0.15s;
 }
 
 .tab-btn:hover {
-  color: #374151;
+  color: #7c3aed;
 }
 
 .tab-btn.active {
-  color: #111827;
-  border-bottom-color: #111827;
+  color: #7c3aed;
+  border-bottom-color: #7c3aed;
 }
 
 /* ── Main ── */
@@ -111,23 +110,23 @@ body {
 
 /* ── Panel (shared card style) ── */
 .panel {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
 .panel-title {
-  font-size: 1.25rem;
-  color: #111827;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1f2937;
   margin-bottom: 1.25rem;
-  border-bottom: 1.5px solid #e5e7eb;
+  border-bottom: 1.5px solid #f3f4f6;
   padding-bottom: 0.75rem;
   flex-shrink: 0;
-  font-weight: 700;
 }
 
 /* ── Frequent Todos ── */
@@ -140,19 +139,23 @@ body {
 }
 
 .frequent-tag {
-  padding: 0.3rem 0.7rem;
+  padding: 0.3rem 0.75rem;
   border: 1.5px solid;
   border-radius: 20px;
-  background: white;
-  font-size: 0.82rem;
+  background: #ede9fe;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
+  color: #7c3aed;
+  border-color: #c4b5fd;
 }
 
 .frequent-tag:hover {
-  opacity: 0.7;
+  background: #7c3aed;
+  color: white;
+  border-color: #7c3aed;
   transform: translateY(-1px);
 }
 
@@ -172,68 +175,72 @@ body {
 
 .todo-input {
   flex: 1;
-  padding: 0.65rem 0.9rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
   font-size: 0.95rem;
   background: #fafafa;
   transition: border-color 0.15s, box-shadow 0.15s;
+  color: #1f2937;
 }
 
 .todo-input:focus {
   outline: none;
-  border-color: #6b7280;
+  border-color: #7c3aed;
   background: white;
-  box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .category-select {
   padding: 0.65rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
   background: #fafafa;
   cursor: pointer;
   font-size: 0.9rem;
   transition: border-color 0.15s;
+  color: #1f2937;
 }
 
 .category-select:focus {
   outline: none;
-  border-color: #6b7280;
+  border-color: #7c3aed;
 }
 
 /* ── Buttons ── */
 .btn {
-  padding: 0.65rem 1.1rem;
+  padding: 0.65rem 1.2rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.9rem;
   transition: all 0.15s;
   white-space: nowrap;
 }
 
 .btn-primary {
-  background: #111827;
+  background: #7c3aed;
   color: white;
 }
 
 .btn-primary:hover {
-  background: #1f2937;
+  background: #6d28d9;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
 .btn-primary:disabled {
-  background: #9ca3af;
+  background: #c4b5fd;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .btn-secondary {
   background: #f3f4f6;
   color: #374151;
-  border: 1px solid #d1d5db;
+  border: 1.5px solid #e5e7eb;
 }
 
 .btn-secondary:hover {
@@ -243,19 +250,21 @@ body {
 .btn-delete {
   background: #fee2e2;
   color: #dc2626;
-  padding: 0.4rem 0.65rem;
-  font-size: 0.82rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: 8px;
 }
 
 .btn-delete:hover {
   background: #fecaca;
+  transform: none;
 }
 
 /* ── Todo List ── */
 .todo-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0;
   margin-bottom: 1rem;
   flex: 1;
   overflow-y: auto;
@@ -271,7 +280,7 @@ body {
   text-align: center;
   color: #9ca3af;
   padding: 2rem;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 /* ── Todo Item ── */
@@ -279,15 +288,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background: #fafafa;
-  border-radius: 8px;
-  border-left: 3px solid #e5e7eb;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f3f4f6;
   transition: background 0.15s;
 }
 
-.todo-item:hover {
-  background: #f3f4f6;
+.todo-item:last-child {
+  border-bottom: none;
 }
 
 .todo-content {
@@ -299,11 +306,11 @@ body {
 }
 
 .todo-checkbox {
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
   flex-shrink: 0;
-  accent-color: #374151;
+  accent-color: #7c3aed;
 }
 
 .todo-text {
@@ -330,7 +337,7 @@ body {
 
 /* ── Category Section ── */
 .category-section {
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fafafa;
   border: 1px solid #f3f4f6;
   overflow: hidden;
@@ -371,8 +378,8 @@ body {
 .category-label {
   display: inline-block;
   padding: 0.2rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.01em;
 }
@@ -399,7 +406,7 @@ body {
 }
 
 .completion-percent {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: #6b7280;
   min-width: 32px;
   text-align: right;
@@ -423,7 +430,7 @@ body {
   gap: 1rem;
   padding-top: 0.75rem;
   border-top: 1px solid #f3f4f6;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: #6b7280;
   flex-shrink: 0;
 }
@@ -434,45 +441,44 @@ body {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
-  padding: 0.65rem 1rem;
-  background: white;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
+  padding: 0.75rem 1.1rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .date-header-label {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #111827;
+  color: #1f2937;
 }
 
 .today-return-btn {
-  padding: 0.4rem 0.9rem;
-  border: 1px solid #d1d5db;
+  padding: 0.4rem 1rem;
+  border: 1.5px solid #7c3aed;
   border-radius: 20px;
   background: white;
-  color: #374151;
-  font-size: 0.82rem;
-  font-weight: 600;
+  color: #7c3aed;
+  font-size: 0.8rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
 }
 
 .today-return-btn:hover {
-  background: #111827;
+  background: #7c3aed;
   color: white;
-  border-color: #111827;
 }
 
 /* ── Reflection Section ── */
 .reflection-date {
   color: #6b7280;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   margin-bottom: 1.25rem;
   padding: 0.6rem 0.9rem;
   background: #f9fafb;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #f3f4f6;
 }
 
@@ -487,15 +493,15 @@ body {
 
 .reflection-section h3 {
   color: #374151;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   margin-bottom: 0.6rem;
   font-weight: 700;
 }
 
 .reflection-text {
   background: #f9fafb;
-  padding: 0.9rem;
-  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
   line-height: 1.6;
   color: #374151;
   border: 1px solid #f3f4f6;
@@ -528,26 +534,28 @@ body {
 }
 
 .form-group label {
-  font-weight: 600;
+  font-weight: 700;
   color: #374151;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .form-group textarea {
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
   font-family: inherit;
   font-size: 0.93rem;
   resize: vertical;
   background: #fafafa;
   color: #1f2937;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .form-group textarea:focus {
   outline: none;
-  border-color: #6b7280;
+  border-color: #7c3aed;
   background: white;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .reflection-buttons {
@@ -575,7 +583,7 @@ body {
 }
 
 .tomorrow-todo-title {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #374151;
   margin-bottom: 0.65rem;
@@ -607,7 +615,7 @@ body {
   gap: 0.5rem;
   padding: 0.45rem 0.65rem;
   background: #f9fafb;
-  border-radius: 7px;
+  border-radius: 8px;
   border: 1px solid #f3f4f6;
 }
 
@@ -687,7 +695,7 @@ body {
   min-width: 60px;
   padding: 0.6rem 0.4rem;
   border: 1.5px solid;
-  border-radius: 8px;
+  border-radius: 12px;
   background: white;
   cursor: pointer;
   transition: all 0.15s;
@@ -698,16 +706,16 @@ body {
   font-weight: 600;
 }
 
-.mood-button:hover { transform: translateY(-2px); }
+.mood-button:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
 .mood-emoji { font-size: 1.4rem; }
-.mood-label { font-size: 0.75rem; }
+.mood-label { font-size: 0.72rem; }
 
 /* ── Calendar Section Wrapper ── */
 .calendar-section {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* ── Calendar View ── */
@@ -729,8 +737,8 @@ body {
 }
 
 .calendar-view-title {
-  font-size: 1.2rem;
-  color: #111827;
+  font-size: 1.15rem;
+  color: #1f2937;
   font-weight: 700;
   min-width: 160px;
   text-align: center;
@@ -745,8 +753,8 @@ body {
 .calendar-nav {
   background: #f3f4f6;
   color: #374151;
-  border: 1px solid #e5e7eb;
-  border-radius: 7px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
   padding: 0.45rem 0.75rem;
   cursor: pointer;
   font-weight: 700;
@@ -755,32 +763,33 @@ body {
 }
 
 .calendar-nav:hover {
-  background: #e5e7eb;
+  background: #ede9fe;
+  border-color: #c4b5fd;
+  color: #7c3aed;
 }
 
 .calendar-today-btn {
-  padding: 0.4rem 0.9rem;
-  border: 1px solid #d1d5db;
+  padding: 0.4rem 1rem;
+  border: 1.5px solid #7c3aed;
   border-radius: 20px;
   background: white;
-  color: #374151;
-  font-size: 0.82rem;
-  font-weight: 600;
+  color: #7c3aed;
+  font-size: 0.8rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .calendar-today-btn:hover {
-  background: #111827;
+  background: #7c3aed;
   color: white;
-  border-color: #111827;
 }
 
 /* ── View Toggle (월별/주별) ── */
 .view-toggle {
   display: flex;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
   overflow: hidden;
 }
 
@@ -796,11 +805,11 @@ body {
 }
 
 .view-toggle-btn:first-child {
-  border-right: 1px solid #d1d5db;
+  border-right: 1.5px solid #e5e7eb;
 }
 
 .view-toggle-btn.active {
-  background: #111827;
+  background: #7c3aed;
   color: white;
 }
 
@@ -817,8 +826,8 @@ body {
   font-weight: 700;
   color: #6b7280;
   padding: 0.4rem;
-  font-size: 0.82rem;
-  letter-spacing: 0.02em;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
 }
 
 .weekday.sun { color: #ef4444; }
@@ -834,9 +843,9 @@ body {
 
 .calendar-day-full {
   border: 1.5px solid #f3f4f6;
-  border-radius: 8px;
-  padding: 0.45rem 0.35rem 0.35rem;
-  background: #fafafa;
+  border-radius: 12px;
+  padding: 0.5rem 0.4rem 0.4rem;
+  background: #f9f9f9;
   cursor: pointer;
   transition: all 0.15s;
   min-height: 80px;
@@ -851,35 +860,38 @@ body {
   cursor: default;
 }
 
-/* 날짜가 비어있으면 회색, 데이터가 있으면 흰색(색상 바가 채워짐) */
+/* 데이터 있는 날: 흰 배경 */
 .calendar-day-full.has-data {
   background: white;
   border-color: #e5e7eb;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
+/* 오늘: 보라색 테두리 강조 */
 .calendar-day-full.today {
-  border: 2px solid #374151;
+  border: 2px solid #7c3aed;
   background: white;
 }
 
+/* 선택된 날: 연보라 배경 */
 .calendar-day-full.selected:not(.today) {
-  border: 2px solid #f59e0b;
-  background: #fffbeb;
+  border: 2px solid #7c3aed;
+  background: #ede9fe;
 }
 
 .calendar-day-full.future:not(.has-data) {
-  opacity: 0.4;
+  opacity: 0.45;
 }
 
 .calendar-day-full.has-data:not(.future):hover {
-  border-color: #9ca3af;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: #7c3aed;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
   transform: translateY(-1px);
 }
 
 .calendar-day-full:not(.empty):not(.has-data):hover {
-  border-color: #d1d5db;
-  background: #f9fafb;
+  border-color: #c4b5fd;
+  background: #f9f9f9;
 }
 
 /* ── Day Cell Content ── */
@@ -890,15 +902,27 @@ body {
 }
 
 .day-num {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: #374151;
   line-height: 1;
 }
 
+/* 오늘 날짜 숫자: 보라색 원 */
+.calendar-day-full.today .day-num {
+  background: #7c3aed;
+  color: white;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+}
+
 .day-num.sun { color: #ef4444; }
 .day-num.sat { color: #3b82f6; }
-.calendar-day-full.today .day-num { color: #111827; }
 
 .day-mood-icon {
   font-size: 0.8rem;
@@ -935,9 +959,9 @@ body {
 
 .calendar-week-day {
   border: 1.5px solid #f3f4f6;
-  border-radius: 10px;
+  border-radius: 14px;
   padding: 0.75rem 0.6rem;
-  background: #fafafa;
+  background: #f9f9f9;
   cursor: pointer;
   transition: all 0.15s;
   min-height: 200px;
@@ -949,26 +973,27 @@ body {
 .calendar-week-day.has-data {
   background: white;
   border-color: #e5e7eb;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
 .calendar-week-day.today {
-  border: 2px solid #374151;
+  border: 2px solid #7c3aed;
   background: white;
 }
 
 .calendar-week-day.selected:not(.today) {
-  border: 2px solid #f59e0b;
-  background: #fffbeb;
+  border: 2px solid #7c3aed;
+  background: #ede9fe;
 }
 
 .calendar-week-day:not(.future):hover {
-  border-color: #9ca3af;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: #7c3aed;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
   transform: translateY(-1px);
 }
 
 .calendar-week-day.future:not(.has-data) {
-  opacity: 0.4;
+  opacity: 0.45;
 }
 
 .week-day-header {
@@ -981,7 +1006,7 @@ body {
 }
 
 .week-day-name {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #9ca3af;
   text-transform: uppercase;
@@ -992,15 +1017,27 @@ body {
 .week-day-name.sat { color: #93c5fd; }
 
 .week-day-num {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: #374151;
   line-height: 1;
 }
 
+/* 오늘 주간뷰 날짜 숫자: 보라색 원 */
+.calendar-week-day.today .week-day-num {
+  background: #7c3aed;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+}
+
 .week-day-num.sun { color: #ef4444; }
 .week-day-num.sat { color: #3b82f6; }
-.calendar-week-day.today .week-day-num { color: #111827; }
 
 .week-day-bars {
   display: flex;
@@ -1053,7 +1090,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: #d1d5db;
   font-style: italic;
 }
@@ -1067,12 +1104,12 @@ body {
 }
 
 .week-todo-title {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: #374151;
-  background: white;
+  background: #f9fafb;
   border-left: 2.5px solid #e5e7eb;
   padding: 0.2rem 0.4rem;
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 6px 6px 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1085,9 +1122,10 @@ body {
 }
 
 .week-todo-more {
-  font-size: 0.7rem;
-  color: #9ca3af;
+  font-size: 0.68rem;
+  color: #a78bfa;
   padding: 0.1rem 0.4rem;
+  font-weight: 600;
 }
 
 .week-day-mood {
@@ -1110,7 +1148,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #6b7280;
 }
 
@@ -1131,18 +1169,18 @@ body {
   justify-content: center;
   z-index: 1000;
   padding: 1rem;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
   background: white;
-  border-radius: 14px;
+  border-radius: 20px;
   width: 100%;
   max-width: 620px;
   max-height: 88vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
   overflow: hidden;
 }
 
@@ -1157,14 +1195,14 @@ body {
 
 .modal-date {
   font-size: 1rem;
-  color: #111827;
+  color: #1f2937;
   margin: 0;
   font-weight: 700;
 }
 
 .modal-today-badge {
   display: inline-block;
-  background: #111827;
+  background: #7c3aed;
   color: white;
   font-size: 0.72rem;
   font-weight: 600;
@@ -1185,7 +1223,7 @@ body {
   flex-shrink: 0;
 }
 
-.modal-close-btn:hover { color: #111827; }
+.modal-close-btn:hover { color: #1f2937; }
 
 .modal-body {
   overflow-y: auto;
@@ -1207,7 +1245,7 @@ body {
 
 .modal-section-header h3 {
   font-size: 1rem;
-  color: #111827;
+  color: #1f2937;
   margin: 0;
   flex: 1;
   font-weight: 700;
@@ -1220,9 +1258,7 @@ body {
 }
 
 .modal-todo-input { margin-bottom: 0.4rem; }
-
 .modal-todo-list { display: flex; flex-direction: column; gap: 0.65rem; }
-
 .modal-category-group { display: flex; flex-direction: column; gap: 0.35rem; }
 
 .modal-category-label-row {
@@ -1246,6 +1282,7 @@ body {
 @media (max-width: 768px) {
   .main { padding: 1rem; }
   .panel { padding: 1rem; }
+  .calendar-section { padding: 1rem; }
 
   .header-top { padding: 0.9rem 1rem 0.5rem; }
   .tab-nav { padding: 0 1rem; }
@@ -1254,18 +1291,18 @@ body {
   .mood-selector { gap: 0.35rem; }
   .mood-button { padding: 0.5rem 0.3rem; }
 
-  .calendar-day-full { min-height: 58px; padding: 0.3rem 0.2rem 0.2rem; }
+  .calendar-day-full { min-height: 58px; padding: 0.3rem 0.25rem 0.25rem; border-radius: 8px; }
   .calendar-grid-full { gap: 0.2rem; }
-  .day-num { font-size: 0.75rem; }
+  .day-num { font-size: 0.72rem; }
 
-  .calendar-week-day { min-height: 160px; padding: 0.5rem 0.35rem; }
+  .calendar-week-day { min-height: 160px; padding: 0.5rem 0.35rem; border-radius: 10px; }
   .calendar-week-grid { gap: 0.25rem; }
   .week-day-num { font-size: 0.95rem; }
   .week-bar-label { display: none; }
 
   .calendar-view-title { min-width: 120px; font-size: 1rem; }
 
-  .modal-content { max-height: 95vh; }
+  .modal-content { border-radius: 16px; max-height: 95vh; }
   .modal-header { padding: 0.9rem 1rem; }
   .modal-body { padding: 1rem; }
 }
