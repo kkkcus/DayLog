@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api.js'
 
 export default function TodoList({ date }) {
   const today = new Date().toISOString().split('T')[0]
@@ -18,8 +18,6 @@ export default function TodoList({ date }) {
     life: true,
     etc: true
   })
-
-  const API_URL = (import.meta.env.VITE_API_URL || '') + '/api'
 
   const categoryInfo = {
     work: { label: '업무', color: '#3b82f6', bgColor: '#dbeafe' },
@@ -40,7 +38,7 @@ export default function TodoList({ date }) {
 
   const fetchFrequentTodos = async () => {
     try {
-      const response = await axios.get(`${API_URL}/todos/frequent`)
+      const response = await api.get('/todos/frequent')
       setFrequentTodos(response.data)
     } catch (err) {
       console.error('Error fetching frequent todos:', err)
@@ -51,7 +49,7 @@ export default function TodoList({ date }) {
     try {
       setLoading(true)
       setError(null)
-      const response = await axios.get(`${API_URL}/todos?date=${targetDate}`)
+      const response = await api.get(`/todos?date=${targetDate}`)
       setTodos(response.data)
     } catch (err) {
       setError('할일을 불러올 수 없습니다')
@@ -87,7 +85,7 @@ export default function TodoList({ date }) {
     if (!title.trim()) return
     try {
       setError(null)
-      const response = await axios.post(`${API_URL}/todos`, {
+      const response = await api.post('/todos', {
         title,
         category: cat,
         date: targetDate,
@@ -105,7 +103,7 @@ export default function TodoList({ date }) {
   const toggleTodo = async (id) => {
     try {
       setError(null)
-      const response = await axios.patch(`${API_URL}/todos/${id}`)
+      const response = await api.patch(`/todos/${id}`)
       setTodos(todos.map(todo => todo._id === id ? response.data : todo))
     } catch (err) {
       setError('할일 수정에 실패했습니다')
@@ -117,7 +115,7 @@ export default function TodoList({ date }) {
   const deleteTodo = async (id) => {
     try {
       setError(null)
-      await axios.delete(`${API_URL}/todos/${id}`)
+      await api.delete(`/todos/${id}`)
       setTodos(todos.filter(todo => todo._id !== id))
     } catch (err) {
       setError('할일 삭제에 실패했습니다')

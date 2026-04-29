@@ -5,18 +5,18 @@ import Todo from '../models/Todo.js';
 export const getReflectionByDate = async (req, res) => {
   try {
     const { date, start, end } = req.query;
+    const userId = req.user.id;
 
-    // 기간별 조회
     if (start && end) {
       const reflections = await Reflection.find({
+        userId,
         date: { $gte: start, $lte: end }
       }).sort({ date: -1 });
       return res.json(reflections);
     }
 
-    // 특정 날짜 조회
     if (date) {
-      const reflection = await Reflection.findOne({ date });
+      const reflection = await Reflection.findOne({ date, userId });
       if (!reflection) {
         return res.status(404).json({ error: '회고를 찾을 수 없습니다' });
       }
@@ -33,18 +33,19 @@ export const getReflectionByDate = async (req, res) => {
 export const createReflection = async (req, res) => {
   try {
     const { date, done, feeling, mood, tomorrow } = req.body;
+    const userId = req.user.id;
 
     if (!date) {
       return res.status(400).json({ error: 'date는 필수입니다' });
     }
 
-    // 중복 체크
-    const existing = await Reflection.findOne({ date });
+    const existing = await Reflection.findOne({ date, userId });
     if (existing) {
       return res.status(409).json({ error: '해당 날짜의 회고가 이미 존재합니다' });
     }
 
     const reflection = new Reflection({
+      userId,
       date,
       done: done || '',
       feeling: feeling || '',
@@ -53,9 +54,7 @@ export const createReflection = async (req, res) => {
     });
 
     await reflection.save();
-
-    // 스트릭 업데이트
-    await updateStreak(date);
+    await updateStreak(date, userId);
 
     res.status(201).json(reflection);
   } catch (error) {
@@ -69,13 +68,14 @@ export const updateReflection = async (req, res) => {
     const { id } = req.params;
     const { done, feeling, mood, tomorrow } = req.body;
 
-    const reflection = await Reflection.findByIdAndUpdate(
-      id,
+    const reflection = await Reflection.findOneAndUpdate(
+      { _id: id, userId: req.user.id },
       {
-        done: done !== undefined ? done : undefined,
-        feeling: feeling !== undefined ? feeling : undefined,
-        mood: mood !== undefined ? mood : undefined,
-        tomorrow: tomorrow !== undefined ? tomorrow : undefined
+        ...(done !== undefined && { done }),
+        ...(feeling !== undefined && { feeling }),
+        ...(mood !== undefined && { mood }),
+        ...(tomorrow !== undefined && { tomorrow }),
+        updatedAt: Date.now()
       },
       { new: true, runValidators: true }
     );
@@ -84,8 +84,7 @@ export const updateReflection = async (req, res) => {
       return res.status(404).json({ error: '회고를 찾을 수 없습니다' });
     }
 
-    // 스트릭 업데이트
-    await updateStreak(reflection.date);
+    await updateStreak(reflection.date, req.user.id);
 
     res.json(reflection);
   } catch (error) {
@@ -93,21 +92,14 @@ export const updateReflection = async (req, res) => {
   }
 };
 
-// 스트릭 업데이트 함수
-const updateStreak = async (date) => {
+// 스트릭 업데이트 (사용자별)
+const updateStreak = async (date, userId) => {
   try {
-    // 오늘 할일 완료 여부 체크
-    const completedTodos = await Todo.countDocuments({
-      date,
-      completed: true
-    });
-
-    // 회고 존재 여부 체크
-    const reflection = await Reflection.findOne({ date });
+    const completedTodos = await Todo.countDocuments({ date, completed: true, userId });
+    const reflection = await Reflection.findOne({ date, userId });
 
     if (completedTodos > 0 && reflection) {
-      // 기존 스트릭 데이터 가져오기 (가장 최근 회고)
-      const lastReflection = await Reflection.findOne().sort({ date: -1 });
+      const lastReflection = await Reflection.findOne({ userId }).sort({ date: -1 });
 
       let currentStreak = 1;
       let bestStreak = 1;
@@ -119,21 +111,14 @@ const updateStreak = async (date) => {
         const yesterdayStr = yesterday.toISOString().split('T')[0];
 
         if (lastReflection.lastActiveDate === yesterdayStr) {
-          // 연속이면 증가
           currentStreak = lastReflection.currentStreak + 1;
         } else {
-          // 끊기면 1로 리셋
           currentStreak = 1;
         }
         bestStreak = Math.max(currentStreak, lastReflection.bestStreak || 0);
       }
 
-      // 모든 회고의 스트릭 업데이트 (전체 기록 유지)
-      await Reflection.updateMany({}, {
-        currentStreak,
-        bestStreak,
-        lastActiveDate
-      });
+      await Reflection.updateMany({ userId }, { currentStreak, bestStreak, lastActiveDate });
     }
   } catch (error) {
     console.error('Streak update error:', error);

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import './App.css'
+import api from './api.js'
 import TodoList from './components/TodoList'
 import ReflectionSection from './components/ReflectionSection'
 import CalendarView from './components/CalendarView'
-
-const API_URL = (import.meta.env.VITE_API_URL || '') + '/api'
+import LoginPage from './components/LoginPage'
 
 const TABS = [
   { id: 'calendar', label: '캘린더' },
@@ -22,21 +22,57 @@ function App() {
   const [activeTab, setActiveTab] = useState('calendar')
   const [streak, setStreak] = useState({ current: 0, best: 0 })
   const [selectedDate, setSelectedDate] = useState(today)
+  const [user, setUser] = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [authError, setAuthError] = useState(false)
+
+  // OAuth 콜백 토큰 처리 + 기존 토큰 검증
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get('token')
+    const error = params.get('error')
+
+    if (token) {
+      localStorage.setItem('daylog_token', token)
+      window.history.replaceState({}, '', '/')
+    }
+
+    if (error) {
+      setAuthError(true)
+      setAuthLoading(false)
+      return
+    }
+
+    verifyToken()
+  }, [])
+
+  const verifyToken = async () => {
+    const token = localStorage.getItem('daylog_token')
+    if (!token) {
+      setAuthLoading(false)
+      return
+    }
+    try {
+      const res = await api.get('/auth/me')
+      setUser(res.data)
+    } catch {
+      localStorage.removeItem('daylog_token')
+    } finally {
+      setAuthLoading(false)
+    }
+  }
 
   useEffect(() => {
-    fetchStreak()
-  }, [])
+    if (user) fetchStreak()
+  }, [user])
 
   const fetchStreak = async () => {
     try {
-      const response = await fetch(`${API_URL}/reflections?start=2020-01-01&end=2030-12-31`)
-      const reflections = await response.json()
+      const res = await api.get('/reflections?start=2020-01-01&end=2030-12-31')
+      const reflections = res.data
       if (Array.isArray(reflections) && reflections.length > 0) {
         const latest = reflections[0]
-        setStreak({
-          current: latest.currentStreak || 0,
-          best: latest.bestStreak || 0
-        })
+        setStreak({ current: latest.currentStreak || 0, best: latest.bestStreak || 0 })
       }
     } catch (error) {
       console.error('Failed to fetch streak:', error)
@@ -48,19 +84,51 @@ function App() {
     setActiveTab('todo')
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('daylog_token')
+    setUser(null)
+    setStreak({ current: 0, best: 0 })
+  }
+
   const isViewingToday = selectedDate === today
+
+  if (authLoading) {
+    return (
+      <div className="auth-loading">
+        <div className="auth-loading-spinner" />
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <LoginPage error={authError} />
+  }
 
   return (
     <div className="app">
       <header className="header">
         <div className="header-top">
           <h1 className="logo">DayLog</h1>
-          {streak.current > 0 && (
-            <div className="streak-display">
-              🔥 {streak.current}일 연속
-              <span className="streak-best">최고 {streak.best}일</span>
+          <div className="header-right">
+            {streak.current > 0 && (
+              <div className="streak-display">
+                🔥 {streak.current}일 연속
+                <span className="streak-best">최고 {streak.best}일</span>
+              </div>
+            )}
+            <div className="user-profile">
+              {user.profileImage && (
+                <img
+                  src={user.profileImage}
+                  alt={user.name}
+                  className="profile-avatar"
+                  referrerPolicy="no-referrer"
+                />
+              )}
+              <span className="profile-name">{user.name.split(' ')[0]}</span>
+              <button className="logout-btn" onClick={handleLogout}>로그아웃</button>
             </div>
-          )}
+          </div>
         </div>
         <nav className="tab-nav">
           {TABS.map(tab => (

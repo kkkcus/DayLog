@@ -1,4 +1,5 @@
 import express from 'express';
+import { authenticate } from '../middleware/authenticate.js';
 import {
   getReflectionByDate,
   createReflection,
@@ -6,6 +7,8 @@ import {
 } from '../controllers/reflectionController.js';
 
 const router = express.Router();
+
+router.use(authenticate);
 
 router.get('/', getReflectionByDate);
 router.post('/', createReflection);

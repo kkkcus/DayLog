@@ -1,13 +1,15 @@
+import mongoose from 'mongoose';
 import Todo from '../models/Todo.js';
 
 // 날짜별 할일 조회
 export const getTodos = async (req, res) => {
   try {
     const { date, start, end } = req.query;
+    const userId = req.user.id;
 
-    // 기간별 조회
     if (start && end) {
       const todos = await Todo.find({
+        userId,
         date: { $gte: start, $lte: end }
       }).sort({ date: 1, createdAt: -1 });
       return res.json(todos);
@@ -17,7 +19,7 @@ export const getTodos = async (req, res) => {
       return res.status(400).json({ error: '날짜를 입력해주세요 (YYYY-MM-DD)' });
     }
 
-    const todos = await Todo.find({ date }).sort({ createdAt: -1 });
+    const todos = await Todo.find({ userId, date }).sort({ createdAt: -1 });
     res.json(todos);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -28,12 +30,14 @@ export const getTodos = async (req, res) => {
 export const createTodo = async (req, res) => {
   try {
     const { title, category, date } = req.body;
+    const userId = req.user.id;
 
     if (!title || !date) {
       return res.status(400).json({ error: 'title과 date는 필수입니다' });
     }
 
     const todo = new Todo({
+      userId,
       title,
       category: category || 'general',
       date,
@@ -51,7 +55,7 @@ export const createTodo = async (req, res) => {
 export const toggleTodo = async (req, res) => {
   try {
     const { id } = req.params;
-    const todo = await Todo.findById(id);
+    const todo = await Todo.findOne({ _id: id, userId: req.user.id });
 
     if (!todo) {
       return res.status(404).json({ error: '할일을 찾을 수 없습니다' });
@@ -66,9 +70,11 @@ export const toggleTodo = async (req, res) => {
 };
 
 // 자주 쓰는 할일 집계
-export const getFrequentTodos = async (_req, res) => {
+export const getFrequentTodos = async (req, res) => {
   try {
+    const userId = new mongoose.Types.ObjectId(req.user.id);
     const results = await Todo.aggregate([
+      { $match: { userId } },
       {
         $group: {
           _id: { title: '$title', category: '$category' },
@@ -96,7 +102,7 @@ export const getFrequentTodos = async (_req, res) => {
 export const deleteTodo = async (req, res) => {
   try {
     const { id } = req.params;
-    const todo = await Todo.findByIdAndDelete(id);
+    const todo = await Todo.findOneAndDelete({ _id: id, userId: req.user.id });
 
     if (!todo) {
       return res.status(404).json({ error: '할일을 찾을 수 없습니다' });

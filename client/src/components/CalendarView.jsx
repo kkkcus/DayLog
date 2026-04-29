@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
-
-const API_URL = (import.meta.env.VITE_API_URL || '') + '/api'
+import api from '../api.js'
 
 const CATEGORY_COLORS = {
   work: '#3b82f6',
@@ -85,8 +83,8 @@ export default function CalendarView({ onDateClick, selectedDate }) {
     setLoading(true)
     try {
       const [todosRes, reflectionsRes] = await Promise.allSettled([
-        axios.get(`${API_URL}/todos?start=${startDate}&end=${endDate}`),
-        axios.get(`${API_URL}/reflections?start=${startDate}&end=${endDate}`)
+        api.get(`/todos?start=${startDate}&end=${endDate}`),
+        api.get(`/reflections?start=${startDate}&end=${endDate}`)
       ])
 
       if (todosRes.status === 'fulfilled') {

@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const todoSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   title: {
     type: String,
     required: true,
@@ -18,11 +23,6 @@ const todoSchema = new mongoose.Schema({
     type: String,
     required: true,
     match: /^\d{4}-\d{2}-\d{2}$/
-  },
-  time: {
-    type: String,
-    default: null,
-    match: /^([01]\d|2[0-3]):[0-5]\d$/
   },
   createdAt: {
     type: Date,

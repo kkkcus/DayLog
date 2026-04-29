@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api.js'
 
 const moodStages = [
   { level: 5, label: '최고', emoji: '😄', color: '#22c55e' },
@@ -44,8 +44,6 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
   const [tomorrowCategory, setTomorrowCategory] = useState('work')
   const [tomorrowLoading, setTomorrowLoading] = useState(false)
 
-  const API_URL = (import.meta.env.VITE_API_URL || '') + '/api'
-
   useEffect(() => {
     fetchReflection()
     if (!isReadOnly) {
@@ -57,7 +55,7 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
 
   const fetchCompletedTodos = async () => {
     try {
-      const response = await axios.get(`${API_URL}/todos?date=${today}`)
+      const response = await api.get(`/todos?date=${today}`)
       setCompletedTodos(response.data.filter(todo => todo.completed))
     } catch (err) {
       console.error('Error fetching completed todos:', err)
@@ -68,7 +66,7 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
     try {
       setLoading(true)
       setError(null)
-      const response = await axios.get(`${API_URL}/reflections?date=${targetDate}`)
+      const response = await api.get(`/reflections?date=${targetDate}`)
       setReflection(response.data)
       setTempReflection({
         done: response.data.done || '',
@@ -89,7 +87,7 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
 
   const fetchTomorrowTodos = async () => {
     try {
-      const response = await axios.get(`${API_URL}/todos?date=${tomorrowDate}`)
+      const response = await api.get(`/todos?date=${tomorrowDate}`)
       setTomorrowTodos(response.data)
     } catch (err) {
       console.error('Error fetching tomorrow todos:', err)
@@ -100,7 +98,7 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
     if (!newTomorrowTodo.trim()) return
     try {
       setTomorrowLoading(true)
-      const response = await axios.post(`${API_URL}/todos`, {
+      const response = await api.post('/todos', {
         title: newTomorrowTodo,
         category: tomorrowCategory,
         date: tomorrowDate
@@ -116,7 +114,7 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
 
   const handleDeleteTomorrowTodo = async (id) => {
     try {
-      await axios.delete(`${API_URL}/todos/${id}`)
+      await api.delete(`/todos/${id}`)
       setTomorrowTodos(prev => prev.filter(t => t._id !== id))
     } catch (err) {
       setError('할일 삭제에 실패했습니다')
@@ -127,10 +125,10 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
     try {
       setError(null)
       if (reflection) {
-        const response = await axios.patch(`${API_URL}/reflections/${reflection._id}`, tempReflection)
+        const response = await api.patch(`/reflections/${reflection._id}`, tempReflection)
         setReflection(response.data)
       } else {
-        const response = await axios.post(`${API_URL}/reflections`, { date: targetDate, ...tempReflection })
+        const response = await api.post('/reflections', { date: targetDate, ...tempReflection })
         setReflection(response.data)
       }
       setIsEditing(false)
