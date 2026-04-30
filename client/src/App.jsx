@@ -12,6 +12,7 @@ const TABS = [
   { id: 'calendar', label: '캘린더' },
   { id: 'todo', label: '할일' },
   { id: 'reflection', label: '회고' },
+  { id: 'fortune', label: '운세' },
 ]
 
 const formatDate = (dateStr) => {
@@ -160,14 +161,17 @@ function App() {
 
       <main className="main">
         <div style={{ display: activeTab === 'calendar' ? 'block' : 'none' }}>
-          <div className="panel-wrap">
-            <FortuneCard user={user} onSetZodiac={() => setShowZodiacModal(true)} />
-          </div>
           <CalendarView
             onDateClick={handleDateClick}
             selectedDate={selectedDate}
           />
         </div>
+
+        {activeTab === 'fortune' && (
+          <div className="panel-wrap">
+            <FortuneCard user={user} onSetZodiac={() => setShowZodiacModal(true)} />
+          </div>
+        )}
 
         {activeTab === 'todo' && (
           <div className="panel-wrap">
