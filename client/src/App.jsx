@@ -5,6 +5,8 @@ import TodoList from './components/TodoList'
 import ReflectionSection from './components/ReflectionSection'
 import CalendarView from './components/CalendarView'
 import LoginPage from './components/LoginPage'
+import FortuneCard from './components/FortuneCard'
+import ZodiacModal from './components/ZodiacModal'
 
 const TABS = [
   { id: 'calendar', label: '캘린더' },
@@ -25,6 +27,7 @@ function App() {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [authError, setAuthError] = useState(false)
+  const [showZodiacModal, setShowZodiacModal] = useState(false)
 
   // OAuth 콜백 토큰 처리 + 기존 토큰 검증
   useEffect(() => {
@@ -90,6 +93,11 @@ function App() {
     setStreak({ current: 0, best: 0 })
   }
 
+  const handleZodiacSave = (updatedUser) => {
+    setUser(updatedUser)
+    setShowZodiacModal(false)
+  }
+
   const isViewingToday = selectedDate === today
 
   if (authLoading) {
@@ -126,6 +134,13 @@ function App() {
                 />
               )}
               <span className="profile-name">{user.name.split(' ')[0]}</span>
+              <button
+                className="zodiac-setting-btn"
+                onClick={() => setShowZodiacModal(true)}
+                title="별자리 설정"
+              >
+                {user.zodiacSign ? { '양자리': '♈', '황소자리': '♉', '쌍둥이자리': '♊', '게자리': '♋', '사자자리': '♌', '처녀자리': '♍', '천칭자리': '♎', '전갈자리': '♏', '사수자리': '♐', '염소자리': '♑', '물병자리': '♒', '물고기자리': '♓' }[user.zodiacSign] : '🔮'}
+              </button>
               <button className="logout-btn" onClick={handleLogout}>로그아웃</button>
             </div>
           </div>
@@ -145,6 +160,9 @@ function App() {
 
       <main className="main">
         <div style={{ display: activeTab === 'calendar' ? 'block' : 'none' }}>
+          <div className="panel-wrap">
+            <FortuneCard user={user} onSetZodiac={() => setShowZodiacModal(true)} />
+          </div>
           <CalendarView
             onDateClick={handleDateClick}
             selectedDate={selectedDate}
@@ -189,6 +207,14 @@ function App() {
           </div>
         )}
       </main>
+
+      {showZodiacModal && (
+        <ZodiacModal
+          currentZodiac={user.zodiacSign}
+          onSave={handleZodiacSave}
+          onClose={() => setShowZodiacModal(false)}
+        />
+      )}
     </div>
   )
 }

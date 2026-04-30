@@ -7,6 +7,7 @@ import passport from './config/passport.js';
 import todoRoutes from './routes/todos.js';
 import reflectionRoutes from './routes/reflections.js';
 import authRoutes from './routes/auth.js';
+import fortuneRoutes from './routes/fortune.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -70,6 +71,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/todos', todoRoutes);
 app.use('/api/reflections', reflectionRoutes);
+app.use('/api/fortune', fortuneRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 서버가 포트 ${PORT}에서 실행 중입니다`);
