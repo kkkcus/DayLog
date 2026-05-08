@@ -8,11 +8,13 @@ import LoginPage from './components/LoginPage'
 import FortuneCard from './components/FortuneCard'
 import ZodiacModal from './components/ZodiacModal'
 import WeatherCard from './components/WeatherCard'
+import StatsView from './components/StatsView'
 
 const TABS = [
   { id: 'calendar', label: '캘린더' },
   { id: 'todo', label: '할일' },
   { id: 'reflection', label: '회고' },
+  { id: 'stats', label: '통계' },
 ]
 
 const formatDate = (dateStr) => {
@@ -188,6 +190,10 @@ function App() {
             </div>
             <TodoList date={selectedDate} />
           </div>
+        )}
+
+        {activeTab === 'stats' && (
+          <StatsView streak={streak} />
         )}
 
         {activeTab === 'reflection' && (
