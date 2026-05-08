@@ -93,8 +93,8 @@ export default function StatsView({ streak }) {
         <div className="stats-card-header">
           <h3 className="stats-card-title">📊 할일 완료율</h3>
           <div className="stats-range-toggle">
-            <button className={`range-btn${range === 7 ? ' active' : ''}`} onClick={() => setRange(7)}>7일</button>
-            <button className={`range-btn${range === 30 ? ' active' : ''}`} onClick={() => setRange(30)}>30일</button>
+            <button className={`range-btn${range === 7 ? ' active' : ''}`} onClick={() => setRange(7)}>주간</button>
+            <button className={`range-btn${range === 30 ? ' active' : ''}`} onClick={() => setRange(30)}>월간</button>
           </div>
         </div>
         <div className="stats-avg">
