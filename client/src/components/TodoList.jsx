@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import api from '../api.js'
 
 export default function TodoList({ date }) {
@@ -11,6 +11,10 @@ export default function TodoList({ date }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [frequentTodos, setFrequentTodos] = useState([])
+  const [uploadingId, setUploadingId] = useState(null)
+  const [lightboxUrl, setLightboxUrl] = useState(null)
+  const fileInputRef = useRef(null)
+  const activeTodoIdRef = useRef(null)
   const [expandedCategories, setExpandedCategories] = useState({
     work: true,
     study: true,
@@ -112,6 +116,41 @@ export default function TodoList({ date }) {
     }
   }
 
+  const triggerPhotoUpload = (todoId) => {
+    activeTodoIdRef.current = todoId
+    fileInputRef.current.value = ''
+    fileInputRef.current.click()
+  }
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const todoId = activeTodoIdRef.current
+    setUploadingId(todoId)
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+      const uploadRes = await api.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      const patchRes = await api.patch(`/todos/${todoId}/photo`, { photoUrl: uploadRes.data.url })
+      setTodos(prev => prev.map(t => t._id === todoId ? patchRes.data : t))
+    } catch (err) {
+      console.error('사진 업로드 실패:', err)
+    } finally {
+      setUploadingId(null)
+    }
+  }
+
+  const removePhoto = async (todoId) => {
+    try {
+      const res = await api.patch(`/todos/${todoId}/photo`, { photoUrl: null })
+      setTodos(prev => prev.map(t => t._id === todoId ? res.data : t))
+    } catch (err) {
+      console.error('사진 삭제 실패:', err)
+    }
+  }
+
   const deleteTodo = async (id) => {
     try {
       setError(null)
@@ -130,6 +169,19 @@ export default function TodoList({ date }) {
 
   return (
     <div className="panel">
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+      {lightboxUrl && (
+        <div className="lightbox-overlay" onClick={() => setLightboxUrl(null)}>
+          <button className="lightbox-close" onClick={() => setLightboxUrl(null)}>✕</button>
+          <img src={lightboxUrl} alt="인증 사진" className="lightbox-img" onClick={e => e.stopPropagation()} />
+        </div>
+      )}
       <h2 className="panel-title">📝 할일</h2>
 
       {error && <div className="error-message">⚠️ {error}</div>}
@@ -227,7 +279,7 @@ export default function TodoList({ date }) {
                 {isExpanded && (
                   <div className="category-todos">
                     {categoryTodos.map(todo => (
-                      <div key={todo._id} className="todo-item">
+                      <div key={todo._id} className={`todo-item${todo.completed && todo.photoUrl ? ' has-photo' : ''}`}>
                         <div className="todo-content">
                           <input
                             type="checkbox"
@@ -240,15 +292,42 @@ export default function TodoList({ date }) {
                             <span className={`todo-title ${todo.completed ? 'completed' : ''}`}>
                               {todo.title}
                             </span>
+                            {todo.completed && todo.photoUrl && (
+                              <div className="todo-photo-wrap">
+                                <img
+                                  src={todo.photoUrl}
+                                  alt="인증 사진"
+                                  className="todo-photo-thumb"
+                                  onClick={() => setLightboxUrl(todo.photoUrl)}
+                                />
+                                <button
+                                  className="photo-delete-btn"
+                                  onClick={() => removePhoto(todo._id)}
+                                  title="사진 삭제"
+                                >✕</button>
+                              </div>
+                            )}
                           </div>
                         </div>
-                        <button
-                          onClick={() => deleteTodo(todo._id)}
-                          className="btn btn-delete"
-                          disabled={loading}
-                        >
-                          삭제
-                        </button>
+                        <div className="todo-actions">
+                          {todo.completed && (
+                            <button
+                              className="photo-upload-btn"
+                              onClick={() => triggerPhotoUpload(todo._id)}
+                              disabled={uploadingId === todo._id}
+                              title={todo.photoUrl ? '사진 변경' : '인증 사진 추가'}
+                            >
+                              {uploadingId === todo._id ? '⏳' : '📷'}
+                            </button>
+                          )}
+                          <button
+                            onClick={() => deleteTodo(todo._id)}
+                            className="btn btn-delete"
+                            disabled={loading}
+                          >
+                            삭제
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>

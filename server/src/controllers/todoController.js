@@ -98,6 +98,23 @@ export const getFrequentTodos = async (req, res) => {
   }
 };
 
+// 사진 URL 업데이트
+export const updateTodoPhoto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { photoUrl } = req.body;
+    const todo = await Todo.findOneAndUpdate(
+      { _id: id, userId: req.user.id },
+      { photoUrl: photoUrl || null },
+      { new: true }
+    );
+    if (!todo) return res.status(404).json({ error: '할일을 찾을 수 없습니다' });
+    res.json(todo);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // 할일 삭제
 export const deleteTodo = async (req, res) => {
   try {

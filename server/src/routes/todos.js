@@ -5,7 +5,8 @@ import {
   createTodo,
   toggleTodo,
   deleteTodo,
-  getFrequentTodos
+  getFrequentTodos,
+  updateTodoPhoto,
 } from '../controllers/todoController.js';
 
 const router = express.Router();
@@ -16,6 +17,7 @@ router.get('/frequent', getFrequentTodos);
 router.get('/', getTodos);
 router.post('/', createTodo);
 router.patch('/:id', toggleTodo);
+router.patch('/:id/photo', updateTodoPhoto);
 router.delete('/:id', deleteTodo);
 
 export default router;
