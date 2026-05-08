@@ -7,12 +7,12 @@ import CalendarView from './components/CalendarView'
 import LoginPage from './components/LoginPage'
 import FortuneCard from './components/FortuneCard'
 import ZodiacModal from './components/ZodiacModal'
+import WeatherCard from './components/WeatherCard'
 
 const TABS = [
   { id: 'calendar', label: '캘린더' },
   { id: 'todo', label: '할일' },
   { id: 'reflection', label: '회고' },
-  { id: 'fortune', label: '운세' },
 ]
 
 const formatDate = (dateStr) => {
@@ -165,13 +165,11 @@ function App() {
             onDateClick={handleDateClick}
             selectedDate={selectedDate}
           />
-        </div>
-
-        {activeTab === 'fortune' && (
-          <div className="panel-wrap">
+          <div className="calendar-widgets">
             <FortuneCard user={user} onSetZodiac={() => setShowZodiacModal(true)} />
+            <WeatherCard />
           </div>
-        )}
+        </div>
 
         {activeTab === 'todo' && (
           <div className="panel-wrap">

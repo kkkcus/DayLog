@@ -1693,6 +1693,141 @@ body {
   color: #7c3aed;
 }
 
+/* ── Calendar Widgets (Fortune + Weather) ── */
+.calendar-widgets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+/* ── Weather Card ── */
+.weather-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.2rem 1.4rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border: 1px solid #f3f4f6;
+}
+
+.weather-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.weather-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.weather-city {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.weather-icon-img {
+  width: 64px;
+  height: 64px;
+}
+
+.weather-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.weather-temp {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1f2937;
+  line-height: 1;
+}
+
+.weather-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.weather-feels {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.weather-loading,
+.weather-error {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.weather-activities-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.weather-activities-hint {
+  font-weight: 400;
+  color: #c4b5fd;
+}
+
+.weather-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.weather-activity-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 20px;
+  border: 1.5px solid #e5e7eb;
+  background: white;
+  font-size: 0.8rem;
+  color: #374151;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  width: 100%;
+}
+
+.weather-activity-btn:hover:not(:disabled) {
+  border-color: #c4b5fd;
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.weather-activity-btn.added {
+  border-color: #a78bfa;
+  background: #ede9fe;
+  color: #7c3aed;
+  cursor: default;
+}
+
+.activity-check {
+  margin-left: auto;
+  font-weight: 700;
+  color: #7c3aed;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .main { padding: 1rem; }
@@ -1724,4 +1859,6 @@ body {
   .zodiac-grid { grid-template-columns: repeat(3, 1fr); padding: 0 1rem 1rem; }
   .zodiac-modal-desc { padding: 0 1rem 0.75rem; }
   .modal-footer { padding: 0.9rem 1rem; }
+
+  .calendar-widgets { grid-template-columns: 1fr; padding: 0.75rem 1rem 1rem; }
 }
