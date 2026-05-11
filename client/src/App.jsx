@@ -144,7 +144,10 @@ function App() {
               >
                 {user.zodiacSign ? { '양자리': '♈', '황소자리': '♉', '쌍둥이자리': '♊', '게자리': '♋', '사자자리': '♌', '처녀자리': '♍', '천칭자리': '♎', '전갈자리': '♏', '사수자리': '♐', '염소자리': '♑', '물병자리': '♒', '물고기자리': '♓' }[user.zodiacSign] : '🔮'}
               </button>
-              <button className="logout-btn" onClick={handleLogout}>로그아웃</button>
+              <button className="logout-btn" onClick={handleLogout}>
+                <span className="logout-text">로그아웃</span>
+                <span className="logout-icon">⏻</span>
+              </button>
             </div>
           </div>
         </div>
