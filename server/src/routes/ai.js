@@ -5,7 +5,7 @@ import Reflection from '../models/Reflection.js';
 
 const router = express.Router();
 
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent';
 
 router.post('/chat', authenticate, async (req, res) => {
   try {
