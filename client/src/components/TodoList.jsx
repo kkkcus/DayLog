@@ -204,8 +204,10 @@ export default function TodoList({ date }) {
       <div
         key={todo._id}
         className={`todo-card${isPhotoCard ? ' has-photo' : ''}`}
-        style={isPhotoCard ? { backgroundImage: `url(${todo.photoUrl})` } : {}}
       >
+        {isPhotoCard && (
+          <img src={todo.photoUrl} alt="" className="todo-card-bg-img" />
+        )}
         <div className={`todo-card-top${isPhotoCard ? ' on-photo' : ''}`}>
           <input
             type="checkbox"
