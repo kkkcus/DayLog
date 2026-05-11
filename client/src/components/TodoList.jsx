@@ -29,6 +29,7 @@ export default function TodoList({ date }) {
   // Photo
   const [uploadingId, setUploadingId] = useState(null)
   const [lightboxUrl, setLightboxUrl] = useState(null)
+  const [photoError, setPhotoError] = useState(null)
   const fileInputRef = useRef(null)
   const activeTodoIdRef = useRef(null)
 
@@ -160,11 +161,12 @@ export default function TodoList({ date }) {
     try {
       const formData = new FormData()
       formData.append('image', file)
-      const uploadRes = await api.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      const uploadRes = await api.post('/upload', formData)
       const patchRes = await api.patch(`/todos/${todoId}/photo`, { photoUrl: uploadRes.data.url })
       setTodos(prev => prev.map(t => t._id === todoId ? patchRes.data : t))
     } catch (err) {
       console.error('사진 업로드 실패:', err)
+      setPhotoError('사진 업로드에 실패했습니다. 다시 시도해주세요.')
     } finally {
       setUploadingId(null)
     }
@@ -338,6 +340,11 @@ export default function TodoList({ date }) {
       </div>
 
       {error && <div className="error-message">⚠️ {error}</div>}
+      {photoError && (
+        <div className="error-message" style={{ cursor: 'pointer' }} onClick={() => setPhotoError(null)}>
+          ⚠️ {photoError}
+        </div>
+      )}
 
       {/* Frequent todos */}
       {frequentTodos.length > 0 && (
