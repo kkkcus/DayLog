@@ -49,7 +49,7 @@ router.post('/chat', authenticate, async (req, res) => {
     ];
 
     const body = {
-      system_instruction: { parts: [{ text: systemText }] },
+      systemInstruction: { parts: [{ text: systemText }] },
       contents,
       generationConfig: { maxOutputTokens: 600, temperature: 0.8 },
     };

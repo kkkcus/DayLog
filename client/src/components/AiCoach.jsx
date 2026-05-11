@@ -34,8 +34,9 @@ export default function AiCoach() {
       const history = messages.slice(1).map(m => ({ role: m.role, text: m.text }))
       const res = await api.post('/ai/chat', { message: msg, history })
       setMessages(prev => [...prev, { role: 'model', text: res.data.reply }])
-    } catch {
-      setMessages(prev => [...prev, { role: 'model', text: '잠깐 오류가 생겼어. 다시 시도해줘 😅' }])
+    } catch (err) {
+      const detail = err?.response?.data?.error || err?.message || '알 수 없는 오류'
+      setMessages(prev => [...prev, { role: 'model', text: `오류: ${detail}` }])
     } finally {
       setLoading(false)
     }
