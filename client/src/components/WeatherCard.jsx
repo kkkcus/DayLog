@@ -91,7 +91,7 @@ export default function WeatherCard() {
   const handleAddActivity = async (text) => {
     if (addedActivities.has(text)) return
     try {
-      await api.post('/todos', { text, date: today })
+      await api.post('/todos', { title: text, date: today })
       setAddedActivities(prev => new Set([...prev, text]))
     } catch (err) {
       console.error('할일 추가 실패:', err)
