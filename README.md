@@ -175,6 +175,6 @@ VITE_API_URL=http://localhost:5000
 | | |
 |---|---|
 | **개발 기간** | 2025년 4월 |
-| **개발자** | 강인석 |
+| **개발자** | 송인석 |
 | **GitHub** | [@kkkcus](https://github.com/kkkcus) |
 | **이메일** | dremsis1234@gmail.com |
