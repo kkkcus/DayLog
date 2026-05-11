@@ -9,6 +9,7 @@ import FortuneCard from './components/FortuneCard'
 import ZodiacModal from './components/ZodiacModal'
 import WeatherCard from './components/WeatherCard'
 import StatsView from './components/StatsView'
+import AiCoach from './components/AiCoach'
 
 const TABS = [
   { id: 'calendar', label: '캘린더' },
@@ -218,6 +219,8 @@ function App() {
           </div>
         )}
       </main>
+
+      <AiCoach />
 
       {showZodiacModal && (
         <ZodiacModal
