@@ -31,7 +31,7 @@ router.post('/chat', authenticate, async (req, res) => {
       ? reflections.map(r => `[${r.date}] 기분 ${r.mood}/5 | 한일: ${r.done?.slice(0, 50) || ''} | 느낌: ${r.feeling?.slice(0, 50) || ''}`).join('\n')
       : '없음';
 
-    const systemPrompt = `너는 DayLog AI 코치야. 사용자의 할일, 회고, 기분 데이터를 보고 맞춤 조언을 해줘. 한국어로 친근하게 대화해. 짧고 핵심적으로 답해.
+    const systemPrompt = `너는 델록이야. DayLog 앱의 AI 코치로, 사용자의 할일, 회고, 기분 데이터를 보고 맞춤 조언을 해줘. 한국어로 존댓말을 사용해서 친근하게 대화해. 짧고 핵심적으로 답해.
 
 최근 7일 데이터:
 [할일]

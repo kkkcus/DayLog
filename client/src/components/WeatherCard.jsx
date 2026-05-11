@@ -55,6 +55,7 @@ export default function WeatherCard() {
   const [weather, setWeather] = useState(null)
   const [loading, setLoading] = useState(true)
   const [addedActivities, setAddedActivities] = useState(new Set())
+  const [toast, setToast] = useState(false)
 
   useEffect(() => {
     const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY
@@ -91,8 +92,14 @@ export default function WeatherCard() {
   const handleAddActivity = async (text) => {
     if (addedActivities.has(text)) return
     try {
-      await api.post('/todos', { title: text, date: today })
+      // 'DayLog 추천!' 카테고리 없으면 자동 생성 (409 중복은 무시)
+      await api.post('/categories', { name: 'DayLog 추천!', color: '#06b6d4' }).catch(e => {
+        if (e?.response?.status !== 409) console.error(e)
+      })
+      await api.post('/todos', { title: text, category: 'DayLog 추천!', date: today })
       setAddedActivities(prev => new Set([...prev, text]))
+      setToast(true)
+      setTimeout(() => setToast(false), 2500)
     } catch (err) {
       console.error('할일 추가 실패:', err)
     }
@@ -102,6 +109,7 @@ export default function WeatherCard() {
 
   return (
     <div className="weather-card">
+      {toast && <div className="weather-toast">✓ 'DayLog 추천!' 카테고리에 추가됐어요!</div>}
       <div className="weather-card-header">
         <span className="weather-title">🌤️ 오늘의 날씨</span>
         {weather && <span className="weather-city">{weather.city}</span>}

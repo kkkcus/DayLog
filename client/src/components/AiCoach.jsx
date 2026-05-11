@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import api from '../api.js'
 
 const QUICK_QUESTIONS = ['오늘 뭐 하면 좋을까?', '이번 주 어땠어?', '기분 올리는 방법']
-const INITIAL_MSG = { role: 'model', text: '안녕! 나는 DayLog AI 코치야 😊\n네 할일이랑 기분 데이터를 보고 맞춤 조언을 해줄게. 무엇이 궁금해?' }
+const INITIAL_MSG = { role: 'model', text: '안녕하세요! 저는 DayLog AI 코치 델록이예요 😊\n할일이랑 기분 데이터를 보고 맞춤 조언을 드릴게요. 무엇이 궁금하세요?' }
 
 export default function AiCoach() {
   const [isOpen, setIsOpen] = useState(false)
@@ -51,7 +51,7 @@ export default function AiCoach() {
       <button
         className={`ai-float-btn${isOpen ? ' open' : ''}`}
         onClick={handleOpen}
-        title="AI 코치"
+        title="델록이"
       >
         {isOpen ? '✕' : '🤖'}
       </button>
@@ -59,7 +59,7 @@ export default function AiCoach() {
       {isOpen && (
         <div className="ai-chat-panel">
           <div className="ai-chat-header">
-            <span>🤖 AI 코치</span>
+            <span>🤖 델록이</span>
             <button onClick={() => setIsOpen(false)}>✕</button>
           </div>
 
