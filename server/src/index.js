@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.js';
 import fortuneRoutes from './routes/fortune.js';
 import statsRoutes from './routes/stats.js';
 import uploadRoutes from './routes/upload.js';
+import categoryRoutes from './routes/categories.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -76,6 +77,7 @@ app.use('/api/reflections', reflectionRoutes);
 app.use('/api/fortune', fortuneRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/categories', categoryRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 서버가 포트 ${PORT}에서 실행 중입니다`);

@@ -1,51 +1,55 @@
 import { useState, useEffect, useRef } from 'react'
 import api from '../api.js'
 
+const COLOR_PALETTE = [
+  '#7c3aed', '#3b82f6', '#10b981', '#f59e0b', '#ef4444',
+  '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#8b5cf6',
+  '#6b7280', '#1f2937',
+]
+
 export default function TodoList({ date }) {
   const today = new Date().toISOString().split('T')[0]
   const targetDate = date || today
 
   const [todos, setTodos] = useState([])
+  const [categories, setCategories] = useState([])
   const [newTodo, setNewTodo] = useState('')
-  const [category, setCategory] = useState('work')
+  const [selectedCategory, setSelectedCategory] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [frequentTodos, setFrequentTodos] = useState([])
+  const [expandedCategories, setExpandedCategories] = useState({})
+
+  // Category modal
+  const [showCatModal, setShowCatModal] = useState(false)
+  const [editingCat, setEditingCat] = useState(null)
+  const [catName, setCatName] = useState('')
+  const [catColor, setCatColor] = useState('#7c3aed')
+
+  // Photo
   const [uploadingId, setUploadingId] = useState(null)
   const [lightboxUrl, setLightboxUrl] = useState(null)
   const fileInputRef = useRef(null)
   const activeTodoIdRef = useRef(null)
-  const [expandedCategories, setExpandedCategories] = useState({
-    work: true,
-    study: true,
-    health: true,
-    life: true,
-    etc: true
-  })
 
-  const categoryInfo = {
-    work: { label: '업무', color: '#3b82f6', bgColor: '#dbeafe' },
-    study: { label: '학습', color: '#8b5cf6', bgColor: '#ede9fe' },
-    health: { label: '건강', color: '#10b981', bgColor: '#d1fae5' },
-    life: { label: '생활', color: '#f59e0b', bgColor: '#fef3c7' },
-    hobby: { label: '취미', color: '#ec4899', bgColor: '#fce7f3' },
-    etc: { label: '기타', color: '#6b7280', bgColor: '#f3f4f6' }
-  }
-
+  useEffect(() => { fetchCategories() }, [])
+  useEffect(() => { fetchTodos() }, [targetDate])
+  useEffect(() => { fetchFrequentTodos() }, [])
   useEffect(() => {
-    fetchTodos()
-  }, [targetDate])
+    setExpandedCategories(prev => {
+      const next = { ...prev }
+      categories.forEach(c => { if (!(c.name in next)) next[c.name] = true })
+      return next
+    })
+  }, [categories])
 
-  useEffect(() => {
-    fetchFrequentTodos()
-  }, [])
-
-  const fetchFrequentTodos = async () => {
+  const fetchCategories = async () => {
     try {
-      const response = await api.get('/todos/frequent')
-      setFrequentTodos(response.data)
+      const res = await api.get('/categories')
+      setCategories(res.data)
+      if (res.data.length > 0) setSelectedCategory(res.data[0].name)
     } catch (err) {
-      console.error('Error fetching frequent todos:', err)
+      console.error('카테고리 로딩 실패:', err)
     }
   }
 
@@ -53,69 +57,95 @@ export default function TodoList({ date }) {
     try {
       setLoading(true)
       setError(null)
-      const response = await api.get(`/todos?date=${targetDate}`)
-      setTodos(response.data)
+      const res = await api.get(`/todos?date=${targetDate}`)
+      setTodos(res.data)
     } catch (err) {
       setError('할일을 불러올 수 없습니다')
-      console.error('Error fetching todos:', err)
     } finally {
       setLoading(false)
     }
   }
 
-  const groupTodosByCategory = () => {
-    const grouped = { work: [], study: [], health: [], life: [], hobby: [], etc: [] }
-    todos.forEach(todo => {
-      const cat = todo.category || 'etc'
-      if (grouped[cat]) grouped[cat].push(todo)
-      else grouped.etc.push(todo)
-    })
-    return grouped
+  const fetchFrequentTodos = async () => {
+    try {
+      const res = await api.get('/todos/frequent')
+      setFrequentTodos(res.data)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
-  const getCompletionRate = (categoryTodos) => {
-    if (categoryTodos.length === 0) return 0
-    const completed = categoryTodos.filter(t => t.completed).length
-    return Math.round((completed / categoryTodos.length) * 100)
+  // ── Category CRUD ──
+  const openAddCat = () => { setEditingCat(null); setCatName(''); setCatColor('#7c3aed'); setShowCatModal(true) }
+  const openEditCat = (cat) => { setEditingCat(cat); setCatName(cat.name); setCatColor(cat.color); setShowCatModal(true) }
+  const closeCatModal = () => { setShowCatModal(false); setEditingCat(null) }
+
+  const handleSaveCat = async () => {
+    if (!catName.trim()) return
+    try {
+      if (editingCat) {
+        const res = await api.patch(`/categories/${editingCat._id}`, { name: catName, color: catColor })
+        setCategories(prev => prev.map(c => c._id === editingCat._id ? res.data : c))
+        if (selectedCategory === editingCat.name) setSelectedCategory(catName)
+      } else {
+        const res = await api.post('/categories', { name: catName, color: catColor })
+        setCategories(prev => [...prev, res.data])
+        setSelectedCategory(catName)
+      }
+      closeCatModal()
+    } catch (err) {
+      console.error('카테고리 저장 실패:', err)
+    }
   }
 
-  const toggleCategory = (cat) => {
-    setExpandedCategories(prev => ({ ...prev, [cat]: !prev[cat] }))
+  const handleDeleteCat = async () => {
+    if (!editingCat) return
+    try {
+      await api.delete(`/categories/${editingCat._id}`)
+      const remaining = categories.filter(c => c._id !== editingCat._id)
+      setCategories(remaining)
+      if (selectedCategory === editingCat.name) setSelectedCategory(remaining[0]?.name || '')
+      closeCatModal()
+    } catch (err) {
+      console.error('카테고리 삭제 실패:', err)
+    }
   }
 
+  // ── Todo CRUD ──
   const handleAddTodo = async (titleOverride, categoryOverride) => {
     const title = titleOverride ?? newTodo
-    const cat = categoryOverride ?? category
+    const cat = categoryOverride ?? selectedCategory
     if (!title.trim()) return
     try {
       setError(null)
-      const response = await api.post('/todos', {
-        title,
-        category: cat,
-        date: targetDate,
-      })
-      setTodos([...todos, response.data])
-      if (!titleOverride) {
-        setNewTodo('')
-      }
+      const res = await api.post('/todos', { title, category: cat, date: targetDate })
+      setTodos(prev => [...prev, res.data])
+      if (!titleOverride) setNewTodo('')
     } catch (err) {
       setError('할일 추가에 실패했습니다')
-      console.error('Error adding todo:', err)
     }
   }
 
   const toggleTodo = async (id) => {
     try {
-      setError(null)
-      const response = await api.patch(`/todos/${id}`)
-      setTodos(todos.map(todo => todo._id === id ? response.data : todo))
+      const res = await api.patch(`/todos/${id}`)
+      setTodos(prev => prev.map(t => t._id === id ? res.data : t))
     } catch (err) {
       setError('할일 수정에 실패했습니다')
-      console.error('Error toggling todo:', err)
       fetchTodos()
     }
   }
 
+  const deleteTodo = async (id) => {
+    try {
+      await api.delete(`/todos/${id}`)
+      setTodos(prev => prev.filter(t => t._id !== id))
+    } catch (err) {
+      setError('할일 삭제에 실패했습니다')
+    }
+  }
+
+  // ── Photo ──
   const triggerPhotoUpload = (todoId) => {
     activeTodoIdRef.current = todoId
     fileInputRef.current.value = ''
@@ -130,9 +160,7 @@ export default function TodoList({ date }) {
     try {
       const formData = new FormData()
       formData.append('image', file)
-      const uploadRes = await api.post('/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+      const uploadRes = await api.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       const patchRes = await api.patch(`/todos/${todoId}/photo`, { photoUrl: uploadRes.data.url })
       setTodos(prev => prev.map(t => t._id === todoId ? patchRes.data : t))
     } catch (err) {
@@ -151,51 +179,176 @@ export default function TodoList({ date }) {
     }
   }
 
-  const deleteTodo = async (id) => {
-    try {
-      setError(null)
-      await api.delete(`/todos/${id}`)
-      setTodos(todos.filter(todo => todo._id !== id))
-    } catch (err) {
-      setError('할일 삭제에 실패했습니다')
-      console.error('Error deleting todo:', err)
-      fetchTodos()
-    }
+  // ── Grouping ──
+  const groupTodos = () => {
+    const groups = {}
+    categories.forEach(c => { groups[c.name] = [] })
+    const unmatched = []
+    todos.forEach(todo => {
+      const catName = todo.category || ''
+      if (catName in groups) groups[catName].push(todo)
+      else unmatched.push(todo)
+    })
+    return { groups, unmatched }
   }
 
-  const groupedTodos = groupTodosByCategory()
+  const { groups, unmatched } = groupTodos()
   const totalTodos = todos.length
   const totalCompleted = todos.filter(t => t.completed).length
 
+  const renderTodoCard = (todo) => {
+    const isPhotoCard = todo.completed && todo.photoUrl
+    return (
+      <div
+        key={todo._id}
+        className={`todo-card${isPhotoCard ? ' has-photo' : ''}`}
+        style={isPhotoCard ? { backgroundImage: `url(${todo.photoUrl})` } : {}}
+      >
+        <div className={`todo-card-top${isPhotoCard ? ' on-photo' : ''}`}>
+          <input
+            type="checkbox"
+            checked={todo.completed}
+            onChange={() => toggleTodo(todo._id)}
+            className="todo-card-check"
+          />
+          <button className="todo-card-del" onClick={() => deleteTodo(todo._id)}>✕</button>
+        </div>
+
+        {isPhotoCard ? (
+          <div className="todo-card-photo-overlay" onClick={() => setLightboxUrl(todo.photoUrl)}>
+            <p className="todo-card-photo-title">{todo.title}</p>
+            <div className="todo-card-photo-actions">
+              <button
+                className="todo-card-photo-camera"
+                onClick={e => { e.stopPropagation(); triggerPhotoUpload(todo._id) }}
+                title="사진 변경"
+              >📷 변경</button>
+              <button
+                className="todo-card-photo-camera"
+                onClick={e => { e.stopPropagation(); removePhoto(todo._id) }}
+                title="사진 삭제"
+              >✕ 삭제</button>
+            </div>
+          </div>
+        ) : (
+          <div className="todo-card-body">
+            <p className={`todo-card-title${todo.completed ? ' done' : ''}`}>{todo.title}</p>
+            {todo.completed && (
+              <button
+                className="todo-card-camera"
+                onClick={() => triggerPhotoUpload(todo._id)}
+                disabled={uploadingId === todo._id}
+              >
+                {uploadingId === todo._id ? '⏳ 업로드 중...' : '📷 인증 사진 추가'}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const renderCategorySection = (catObj, catTodos) => {
+    const done = catTodos.filter(t => t.completed).length
+    const rate = catTodos.length ? Math.round(done / catTodos.length * 100) : 0
+    const isExpanded = expandedCategories[catObj.name] !== false
+    return (
+      <div key={catObj.name} className="category-section">
+        <div className="category-header" style={{ borderLeftColor: catObj.color }} onClick={() => setExpandedCategories(prev => ({ ...prev, [catObj.name]: !isExpanded }))}>
+          <div className="category-toggle">
+            <span className="toggle-icon">{isExpanded ? '▼' : '▶'}</span>
+            <span className="category-label" style={{ backgroundColor: catObj.color, color: 'white' }}>{catObj.name}</span>
+            <span className="category-count">{done}/{catTodos.length}</span>
+          </div>
+          <div className="completion-bar">
+            <div className="completion-fill" style={{ width: `${rate}%`, backgroundColor: catObj.color }} />
+          </div>
+          <span className="completion-percent">{rate}%</span>
+          {catObj._id && (
+            <button className="cat-edit-btn" onClick={e => { e.stopPropagation(); openEditCat(catObj) }}>⋯</button>
+          )}
+        </div>
+        {isExpanded && (
+          <div className="todo-grid">
+            {catTodos.map(renderTodoCard)}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="panel">
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        onChange={handleFileChange}
-      />
+      <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
+
       {lightboxUrl && (
         <div className="lightbox-overlay" onClick={() => setLightboxUrl(null)}>
           <button className="lightbox-close" onClick={() => setLightboxUrl(null)}>✕</button>
           <img src={lightboxUrl} alt="인증 사진" className="lightbox-img" onClick={e => e.stopPropagation()} />
         </div>
       )}
-      <h2 className="panel-title">📝 할일</h2>
+
+      {/* Category Modal */}
+      {showCatModal && (
+        <div className="modal-overlay" onClick={closeCatModal}>
+          <div className="cat-modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">{editingCat ? '카테고리 수정' : '새 카테고리'}</h3>
+              <button className="modal-close" onClick={closeCatModal}>✕</button>
+            </div>
+            <div className="cat-modal-body">
+              <input
+                className="cat-name-input"
+                value={catName}
+                onChange={e => setCatName(e.target.value)}
+                placeholder="카테고리 이름"
+                maxLength={20}
+                onKeyDown={e => e.key === 'Enter' && handleSaveCat()}
+                autoFocus
+              />
+              <div>
+                <p className="cat-modal-label">색상</p>
+                <div className="color-palette">
+                  {COLOR_PALETTE.map(c => (
+                    <button
+                      key={c}
+                      className={`color-swatch${catColor === c ? ' selected' : ''}`}
+                      style={{ background: c }}
+                      onClick={() => setCatColor(c)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              {editingCat && (
+                <button className="btn btn-danger" onClick={handleDeleteCat}>삭제</button>
+              )}
+              <button className="btn btn-secondary" onClick={closeCatModal}>취소</button>
+              <button className="btn btn-primary" onClick={handleSaveCat} disabled={!catName.trim()}>저장</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="cat-manager-row">
+        <h2 className="panel-title" style={{ margin: 0, border: 'none', padding: 0 }}>📝 할일</h2>
+        <button className="add-cat-btn" onClick={openAddCat}>+ 카테고리</button>
+      </div>
 
       {error && <div className="error-message">⚠️ {error}</div>}
 
+      {/* Frequent todos */}
       {frequentTodos.length > 0 && (
         <div className="frequent-todos">
           {frequentTodos.map((item, idx) => (
             <button
               key={idx}
               className="frequent-tag"
-              style={{ borderColor: categoryInfo[item.category]?.color || '#6b7280', color: categoryInfo[item.category]?.color || '#6b7280' }}
-              onClick={() => handleAddTodo(item.title, item.category)}
-              disabled={loading}
-              title={`${categoryInfo[item.category]?.label || item.category} · ${item.count}회 사용`}
+              onClick={() => handleAddTodo(item.title, selectedCategory)}
+              disabled={loading || !categories.length}
+              title={`${item.count}회 사용`}
             >
               {item.title}
             </button>
@@ -203,138 +356,54 @@ export default function TodoList({ date }) {
         </div>
       )}
 
+      {/* Input group */}
       <div className="todo-input-group">
         <input
           type="text"
           placeholder="새로운 할일을 입력하세요..."
           value={newTodo}
-          onChange={(e) => setNewTodo(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()}
+          onChange={e => setNewTodo(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleAddTodo()}
           className="todo-input"
-          disabled={loading}
+          disabled={loading || !categories.length}
         />
         <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          value={selectedCategory}
+          onChange={e => setSelectedCategory(e.target.value)}
           className="category-select"
-          disabled={loading}
+          disabled={loading || !categories.length}
         >
-          <option value="work">업무</option>
-          <option value="study">학습</option>
-          <option value="health">건강</option>
-          <option value="life">생활</option>
-          <option value="hobby">취미</option>
-          <option value="etc">기타</option>
+          {categories.map(cat => (
+            <option key={cat._id} value={cat.name}>{cat.name}</option>
+          ))}
+          {categories.length === 0 && <option value="">카테고리 없음</option>}
         </select>
-        <button
-          onClick={() => handleAddTodo()}
-          className="btn btn-primary"
-          disabled={loading}
-        >
+        <button onClick={() => handleAddTodo()} className="btn btn-primary" disabled={loading || !categories.length}>
           {loading ? '추가중...' : '추가'}
         </button>
       </div>
 
+      {/* Todo sections */}
       <div className="todo-list">
         {loading && todos.length === 0 ? (
           <p className="empty-state">로딩 중...</p>
-        ) : totalTodos === 0 ? (
-          <p className="empty-state">할일이 없습니다. 새로운 할일을 추가해보세요!</p>
+        ) : categories.length === 0 ? (
+          <div className="empty-state-cat">
+            <p>카테고리를 먼저 추가해주세요</p>
+            <button className="btn btn-primary" onClick={openAddCat} style={{ marginTop: '0.75rem', fontSize: '0.88rem' }}>+ 카테고리 추가</button>
+          </div>
         ) : (
-          Object.entries(groupedTodos).map(([cat, categoryTodos]) => {
-            if (categoryTodos.length === 0) return null
-
-            const completion = getCompletionRate(categoryTodos)
-            const info = categoryInfo[cat]
-            const isExpanded = expandedCategories[cat]
-
-            return (
-              <div key={cat} className="category-section">
-                <button
-                  className="category-header"
-                  onClick={() => toggleCategory(cat)}
-                  style={{ borderLeftColor: info.color }}
-                >
-                  <div className="category-toggle">
-                    <span className="toggle-icon">{isExpanded ? '▼' : '▶'}</span>
-                    <span
-                      className="category-label"
-                      style={{ backgroundColor: info.color, color: 'white' }}
-                    >
-                      {info.label}
-                    </span>
-                    <span className="category-count">
-                      {categoryTodos.filter(t => t.completed).length}/{categoryTodos.length}
-                    </span>
-                  </div>
-                  <div className="completion-bar">
-                    <div
-                      className="completion-fill"
-                      style={{ width: `${completion}%`, backgroundColor: info.color }}
-                    />
-                  </div>
-                  <span className="completion-percent">{completion}%</span>
-                </button>
-
-                {isExpanded && (
-                  <div className="category-todos">
-                    {categoryTodos.map(todo => (
-                      <div key={todo._id} className={`todo-item${todo.completed && todo.photoUrl ? ' has-photo' : ''}`}>
-                        <div className="todo-content">
-                          <input
-                            type="checkbox"
-                            checked={todo.completed}
-                            onChange={() => toggleTodo(todo._id)}
-                            className="todo-checkbox"
-                            disabled={loading}
-                          />
-                          <div className="todo-text">
-                            <span className={`todo-title ${todo.completed ? 'completed' : ''}`}>
-                              {todo.title}
-                            </span>
-                            {todo.completed && todo.photoUrl && (
-                              <div className="todo-photo-wrap">
-                                <img
-                                  src={todo.photoUrl}
-                                  alt="인증 사진"
-                                  className="todo-photo-thumb"
-                                  onClick={() => setLightboxUrl(todo.photoUrl)}
-                                />
-                                <button
-                                  className="photo-delete-btn"
-                                  onClick={() => removePhoto(todo._id)}
-                                  title="사진 삭제"
-                                >✕</button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="todo-actions">
-                          {todo.completed && (
-                            <button
-                              className="photo-upload-btn"
-                              onClick={() => triggerPhotoUpload(todo._id)}
-                              disabled={uploadingId === todo._id}
-                              title={todo.photoUrl ? '사진 변경' : '인증 사진 추가'}
-                            >
-                              {uploadingId === todo._id ? '⏳' : '📷'}
-                            </button>
-                          )}
-                          <button
-                            onClick={() => deleteTodo(todo._id)}
-                            className="btn btn-delete"
-                            disabled={loading}
-                          >
-                            삭제
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )
-          })
+          <>
+            {categories.map(cat => {
+              const catTodos = groups[cat.name] || []
+              if (catTodos.length === 0) return null
+              return renderCategorySection(cat, catTodos)
+            })}
+            {unmatched.length > 0 && renderCategorySection({ name: '미분류', color: '#9ca3af' }, unmatched)}
+            {totalTodos === 0 && (
+              <p className="empty-state">할일이 없습니다. 새로운 할일을 추가해보세요!</p>
+            )}
+          </>
         )}
       </div>
 

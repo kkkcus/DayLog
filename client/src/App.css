@@ -1698,6 +1698,297 @@ body {
   color: #7c3aed;
 }
 
+/* ── Category Manager ── */
+.cat-manager-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1.5px solid #f3f4f6;
+}
+
+.add-cat-btn {
+  padding: 0.35rem 0.85rem;
+  border: 1.5px solid #7c3aed;
+  border-radius: 20px;
+  background: white;
+  color: #7c3aed;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.add-cat-btn:hover {
+  background: #7c3aed;
+  color: white;
+}
+
+.cat-edit-btn {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  margin-left: 0.3rem;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.cat-edit-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Category Modal */
+.cat-modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 340px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  overflow: hidden;
+}
+
+.cat-modal-body {
+  padding: 1.2rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cat-modal-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.cat-name-input {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: #fafafa;
+  color: #1f2937;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.cat-name-input:focus {
+  outline: none;
+  border-color: #7c3aed;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+}
+
+.color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  padding: 0;
+  outline: none;
+}
+
+.color-swatch.selected {
+  border-color: #1f2937;
+  transform: scale(1.2);
+}
+
+.btn-danger {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 0.65rem 1.2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+
+.btn-danger:hover {
+  background: #fecaca;
+}
+
+.empty-state-cat {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+/* ── Todo Grid & Cards ── */
+.todo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem 0.75rem;
+}
+
+.todo-card {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  min-height: 150px;
+  background: white;
+  border: 1.5px solid #f3f4f6;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: box-shadow 0.15s;
+}
+
+.todo-card:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+}
+
+.todo-card.has-photo {
+  background-size: cover;
+  background-position: center;
+  border: none;
+  min-height: 190px;
+}
+
+.todo-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.6rem 0.2rem;
+  z-index: 1;
+}
+
+.todo-card-top.on-photo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(rgba(0,0,0,0.3), transparent);
+  padding: 0.6rem;
+}
+
+.todo-card-check {
+  width: 18px;
+  height: 18px;
+  accent-color: #7c3aed;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.todo-card-del {
+  background: none;
+  border: none;
+  color: #d1d5db;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.2rem 0.35rem;
+  border-radius: 4px;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.todo-card-del:hover {
+  color: #ef4444;
+  background: rgba(239,68,68,0.1);
+}
+
+.todo-card-body {
+  flex: 1;
+  padding: 0.3rem 0.75rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.todo-card-title {
+  font-size: 0.9rem;
+  color: #1f2937;
+  line-height: 1.45;
+  flex: 1;
+  word-break: break-word;
+}
+
+.todo-card-title.done {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+.todo-card-camera {
+  background: none;
+  border: 1.5px dashed #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  color: #9ca3af;
+  transition: all 0.15s;
+  text-align: center;
+  margin-top: auto;
+}
+
+.todo-card-camera:hover:not(:disabled) {
+  border-color: #7c3aed;
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+
+/* Photo overlay (셋로그 스타일) */
+.todo-card-photo-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.75));
+  padding: 2rem 0.75rem 0.65rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.todo-card-photo-title {
+  color: white;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+
+.todo-card-photo-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.todo-card-photo-camera {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  backdrop-filter: blur(4px);
+}
+
+.todo-card-photo-camera:hover {
+  background: rgba(255,255,255,0.35);
+}
+
 /* ── Todo Photo ── */
 .todo-item {
   display: flex;
@@ -2325,6 +2616,10 @@ body {
   .stats-card { padding: 0.85rem; }
   .bar-chart { height: 100px; }
   .pixel { width: 7px; height: 7px; }
+
+  .todo-grid { grid-template-columns: 1fr; }
+  .todo-card { min-height: 120px; }
+  .todo-card.has-photo { min-height: 160px; }
 
   /* Modal */
   .modal-overlay { padding: 0.25rem; align-items: flex-end; }
