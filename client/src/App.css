@@ -3513,6 +3513,24 @@ body {
   color: #9ca3af;
 }
 
+.profile-logout-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: none;
+  border: 1.5px solid #fca5a5;
+  border-radius: 12px;
+  color: #ef4444;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.profile-logout-btn:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
 @media (max-width: 480px) {
   .profile-avatar { width: 26px; height: 26px; }
   .profile-avatar-fallback { width: 26px; height: 26px; font-size: 0.75rem; }

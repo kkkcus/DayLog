@@ -121,6 +121,7 @@ function App() {
         user={user}
         onBack={() => setShowProfile(false)}
         onSave={handleProfileSave}
+        onLogout={handleLogout}
       />
     )
   }
@@ -155,10 +156,6 @@ function App() {
                 )}
               </button>
               <span className="profile-name">{user.name.split(' ')[0]}</span>
-              <button className="logout-btn" onClick={handleLogout}>
-                <span className="logout-text">로그아웃</span>
-                <span className="logout-icon">⏻</span>
-              </button>
             </div>
           </div>
         </div>

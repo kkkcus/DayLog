@@ -27,7 +27,7 @@ const formatDate = (dateStr) => {
   return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`
 }
 
-export default function ProfilePage({ user, onBack, onSave }) {
+export default function ProfilePage({ user, onBack, onSave, onLogout }) {
   // ── 프로필 state ──
   const [zodiacSign, setZodiacSign] = useState(user.zodiacSign || '')
   const [birthday, setBirthday] = useState(user.birthday || '')
@@ -410,6 +410,12 @@ export default function ProfilePage({ user, onBack, onSave }) {
         <div className="profile-divider" />
 
         {galleryMode ? renderGallery() : renderCatList()}
+
+        <div className="profile-divider" />
+
+        <button className="profile-logout-btn" onClick={onLogout}>
+          로그아웃
+        </button>
       </div>
     </div>
   )
