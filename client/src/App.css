@@ -1860,7 +1860,6 @@ body {
 .todo-card.has-photo {
   border: none;
   min-height: 220px;
-  grid-column: span 2;
 }
 
 .todo-card-bg-img {
@@ -2650,7 +2649,7 @@ body {
 
   .todo-grid { grid-template-columns: 1fr; }
   .todo-card { min-height: 120px; }
-  .todo-card.has-photo { min-height: 200px; grid-column: span 1; }
+  .todo-card.has-photo { min-height: 200px; }
 
   /* Modal */
   .modal-overlay { padding: 0.25rem; align-items: flex-end; }
