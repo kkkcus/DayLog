@@ -115,6 +115,19 @@ export const updateTodoPhoto = async (req, res) => {
   }
 };
 
+// 사진 있는 할일 조회
+export const getTodoPhotos = async (req, res) => {
+  try {
+    const { category } = req.query;
+    const query = { userId: req.user.id, photoUrl: { $nin: [null, ''] } };
+    if (category) query.category = category;
+    const todos = await Todo.find(query).sort({ date: -1, createdAt: -1 });
+    res.json(todos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // 할일 삭제
 export const deleteTodo = async (req, res) => {
   try {

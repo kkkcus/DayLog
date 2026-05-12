@@ -41,27 +41,44 @@ export default function ProfilePage({ user, onBack, onSave }) {
   // ── 카테고리 state ──
   const [categories, setCategories] = useState([])
   const [allTodos, setAllTodos] = useState([])
-  const [catHistoryName, setCatHistoryName] = useState(null)
   const [catForm, setCatForm] = useState(null) // null | { mode: 'add'|'edit', cat?: {} }
   const [catName, setCatName] = useState('')
   const [catColor, setCatColor] = useState('#7c3aed')
   const [catSaving, setCatSaving] = useState(false)
+
+  // ── 갤러리 state ──
+  // galleryMode: null | 'all' | '<category name>'
+  const [galleryMode, setGalleryMode] = useState(null)
+  const [galleryPhotos, setGalleryPhotos] = useState([])
+  const [galleryLoading, setGalleryLoading] = useState(false)
+  const [galleryFilter, setGalleryFilter] = useState('') // 전체 보기 시 카테고리 필터
+  const [lightboxUrl, setLightboxUrl] = useState(null)
 
   useEffect(() => {
     api.get('/categories').then(res => setCategories(res.data)).catch(() => {})
     api.get('/todos?start=2020-01-01&end=2030-12-31').then(res => setAllTodos(res.data)).catch(() => {})
   }, [])
 
-  const getCatCount = (name) => allTodos.filter(t => t.category === name).length
+  useEffect(() => {
+    if (!galleryMode) return
+    fetchGallery(galleryMode === 'all' ? '' : galleryMode)
+  }, [galleryMode])
 
-  const getHistoryGroups = (name) => {
-    const byDate = {}
-    allTodos.filter(t => t.category === name).forEach(t => {
-      if (!byDate[t.date]) byDate[t.date] = []
-      byDate[t.date].push(t)
-    })
-    return Object.entries(byDate).sort(([a], [b]) => b.localeCompare(a))
+  const fetchGallery = async (category) => {
+    setGalleryLoading(true)
+    try {
+      const params = category ? `?category=${encodeURIComponent(category)}` : ''
+      const res = await api.get(`/todos/photos${params}`)
+      setGalleryPhotos(res.data)
+    } catch (err) {
+      console.error('갤러리 로딩 실패:', err)
+    } finally {
+      setGalleryLoading(false)
+    }
   }
+
+  const getCatCount = (name) => allTodos.filter(t => t.category === name).length
+  const getCatColor = (name) => categories.find(c => c.name === name)?.color || '#94a3b8'
 
   // ── 카테고리 CRUD ──
   const openAddForm = () => {
@@ -88,7 +105,6 @@ export default function ProfilePage({ user, onBack, onSave }) {
         setCategories(prev => prev.map(c => c._id === catForm.cat._id ? res.data : c))
         if (catName !== catForm.cat.name) {
           setAllTodos(prev => prev.map(t => t.category === catForm.cat.name ? { ...t, category: catName } : t))
-          if (catHistoryName === catForm.cat.name) setCatHistoryName(catName)
         }
       } else {
         const res = await api.post('/categories', { name: catName, color: catColor })
@@ -107,7 +123,7 @@ export default function ProfilePage({ user, onBack, onSave }) {
     try {
       await api.delete(`/categories/${cat._id}`)
       setCategories(prev => prev.filter(c => c._id !== cat._id))
-      if (catHistoryName === cat.name) setCatHistoryName(null)
+      if (galleryMode === cat.name) setGalleryMode(null)
     } catch (err) {
       console.error('카테고리 삭제 실패:', err)
     }
@@ -149,39 +165,74 @@ export default function ProfilePage({ user, onBack, onSave }) {
     }
   }
 
-  // ── 카테고리 히스토리 뷰 ──
-  const renderHistory = () => {
-    const cat = categories.find(c => c.name === catHistoryName)
-    const groups = getHistoryGroups(catHistoryName)
-    const total = allTodos.filter(t => t.category === catHistoryName).length
-    const done = allTodos.filter(t => t.category === catHistoryName && t.completed).length
+  // ── 갤러리 뷰 ──
+  const renderGallery = () => {
+    const isCatMode = galleryMode !== 'all'
+    const cat = isCatMode ? categories.find(c => c.name === galleryMode) : null
+    const title = isCatMode ? galleryMode : '모든 사진'
+
+    const filtered = galleryMode === 'all' && galleryFilter
+      ? galleryPhotos.filter(p => p.category === galleryFilter)
+      : galleryPhotos
 
     return (
-      <div className="cat-history">
-        <div className="cat-history-header">
-          <button className="cat-history-back" onClick={() => setCatHistoryName(null)}>← 목록으로</button>
-          <div className="cat-history-title-row">
-            <span className="cat-history-dot" style={{ backgroundColor: cat?.color || '#94a3b8' }} />
-            <span className="cat-history-name">{catHistoryName}</span>
-            <span className="cat-history-stat">{done}/{total} 완료</span>
+      <div className="gallery-view">
+        <div className="gallery-header">
+          <button className="cat-history-back" onClick={() => { setGalleryMode(null); setGalleryFilter('') }}>
+            ← 목록으로
+          </button>
+          <div className="gallery-title-row">
+            {cat && <span className="cat-history-dot" style={{ backgroundColor: cat.color }} />}
+            <span className="gallery-title">{title}</span>
+            <span className="gallery-count">{filtered.length}장</span>
           </div>
         </div>
 
-        {groups.length === 0 ? (
-          <p className="cat-history-empty">아직 할일이 없어요</p>
+        {galleryMode === 'all' && categories.length > 0 && (
+          <div className="gallery-filter-row">
+            <button
+              className={`gallery-filter-btn${!galleryFilter ? ' active' : ''}`}
+              onClick={() => setGalleryFilter('')}
+            >전체</button>
+            {categories.map(c => (
+              <button
+                key={c._id}
+                className={`gallery-filter-btn${galleryFilter === c.name ? ' active' : ''}`}
+                style={galleryFilter === c.name ? { backgroundColor: c.color, borderColor: c.color } : {}}
+                onClick={() => setGalleryFilter(c.name)}
+              >{c.name}</button>
+            ))}
+          </div>
+        )}
+
+        {galleryLoading ? (
+          <p className="cat-history-empty">로딩 중...</p>
+        ) : filtered.length === 0 ? (
+          <p className="cat-history-empty">사진이 없어요</p>
         ) : (
-          <div className="cat-history-list">
-            {groups.map(([date, todos]) => (
-              <div key={date} className="cat-history-group">
-                <p className="cat-history-date">{formatDate(date)}</p>
-                {todos.map(todo => (
-                  <div key={todo._id} className={`cat-history-item${todo.completed ? ' done' : ''}`}>
-                    <span className="cat-history-check">{todo.completed ? '✓' : '○'}</span>
-                    <span className="cat-history-text">{todo.title}</span>
-                  </div>
-                ))}
+          <div className="gallery-grid">
+            {filtered.map(todo => (
+              <div key={todo._id} className="gallery-item" onClick={() => setLightboxUrl(todo.photoUrl)}>
+                <div className="gallery-img-wrap">
+                  <img src={todo.photoUrl} alt={todo.title} className="gallery-img" />
+                  {galleryMode === 'all' && (
+                    <span
+                      className="gallery-cat-badge"
+                      style={{ backgroundColor: getCatColor(todo.category) }}
+                    >{todo.category}</span>
+                  )}
+                </div>
+                <p className="gallery-item-title">{todo.title}</p>
+                <p className="gallery-item-date">{formatDate(todo.date)}</p>
               </div>
             ))}
+          </div>
+        )}
+
+        {lightboxUrl && (
+          <div className="lightbox-overlay" onClick={() => setLightboxUrl(null)}>
+            <button className="lightbox-close" onClick={() => setLightboxUrl(null)}>✕</button>
+            <img src={lightboxUrl} alt="사진" className="lightbox-img" onClick={e => e.stopPropagation()} />
           </div>
         )}
       </div>
@@ -193,7 +244,10 @@ export default function ProfilePage({ user, onBack, onSave }) {
     <div className="profile-cat-section">
       <div className="profile-cat-top">
         <span className="profile-section-title">카테고리 관리</span>
-        <button className="profile-cat-add-btn" onClick={openAddForm}>+ 새 카테고리</button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="gallery-all-btn" onClick={() => setGalleryMode('all')}>📷 모든 사진</button>
+          <button className="profile-cat-add-btn" onClick={openAddForm}>+ 새 카테고리</button>
+        </div>
       </div>
 
       {catForm && (
@@ -238,11 +292,12 @@ export default function ProfilePage({ user, onBack, onSave }) {
             <div
               key={cat._id}
               className="profile-cat-item"
-              onClick={() => { closeForm(); setCatHistoryName(cat.name) }}
+              onClick={() => { closeForm(); setGalleryMode(cat.name) }}
             >
               <span className="profile-cat-dot" style={{ backgroundColor: cat.color }} />
               <span className="profile-cat-name">{cat.name}</span>
               <span className="profile-cat-count">{getCatCount(cat.name)}개</span>
+              <span className="profile-cat-photo-hint">📷</span>
               <button
                 className="profile-cat-icon-btn"
                 onClick={e => openEditForm(cat, e)}
@@ -354,7 +409,7 @@ export default function ProfilePage({ user, onBack, onSave }) {
 
         <div className="profile-divider" />
 
-        {catHistoryName ? renderHistory() : renderCatList()}
+        {galleryMode ? renderGallery() : renderCatList()}
       </div>
     </div>
   )
