@@ -176,8 +176,8 @@ export default function CalendarView({ onDateClick, selectedDate }) {
               key={cat}
               className="mini-bar-track"
               title={isFuture
-                ? `${CATEGORY_LABEL_MAP[cat] || cat}: ${stats.total}개 예정`
-                : `${CATEGORY_LABEL_MAP[cat] || cat}: ${stats.completed}/${stats.total} (${pct}%)`}
+                ? `${cat}: ${stats.total}개 예정`
+                : `${cat}: ${stats.completed}/${stats.total} (${pct}%)`}
             >
               <div className="mini-bar-fill" style={{ width: `${pct}%`, backgroundColor: barColor }} />
             </div>
