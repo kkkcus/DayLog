@@ -43,6 +43,7 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
   const [newTomorrowTodo, setNewTomorrowTodo] = useState('')
   const [tomorrowCategory, setTomorrowCategory] = useState('work')
   const [tomorrowLoading, setTomorrowLoading] = useState(false)
+  const [lightboxUrl, setLightboxUrl] = useState(null)
 
   useEffect(() => {
     fetchReflection()
@@ -156,6 +157,13 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
 
   return (
     <div className="panel">
+      {lightboxUrl && (
+        <div className="lightbox-overlay" onClick={() => setLightboxUrl(null)}>
+          <button className="lightbox-close" onClick={() => setLightboxUrl(null)}>✕</button>
+          <img src={lightboxUrl} alt="인증 사진" className="lightbox-img" onClick={e => e.stopPropagation()} />
+        </div>
+      )}
+
       <h2 className="panel-title">💭 {isFuture ? '회고' : isReadOnly ? '회고' : '오늘의 회고'}</h2>
 
       {error && <div className="error-message">⚠️ {error}</div>}
@@ -196,6 +204,16 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
 
           <div className="form-group">
             <label>오늘 뭘 했어요?</label>
+            {completedTodos.some(t => t.photoUrl) && (
+              <div className="reflection-photo-strip">
+                {completedTodos.filter(t => t.photoUrl).map(todo => (
+                  <div key={todo._id} className="reflection-photo-item" onClick={() => setLightboxUrl(todo.photoUrl)}>
+                    <img src={todo.photoUrl} alt={todo.title} className="reflection-photo-thumb" />
+                    <p className="reflection-photo-label">{todo.title}</p>
+                  </div>
+                ))}
+              </div>
+            )}
             {completedTodos.length > 0 && (
               <div className="completed-todos-hint">
                 <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.5rem' }}>완료한 할일:</p>

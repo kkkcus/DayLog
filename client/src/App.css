@@ -765,6 +765,47 @@ body {
 
 .reflection-buttons .btn { flex: 1; }
 
+/* ── Reflection Photo Strip ── */
+.reflection-photo-strip {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding: 0.5rem 0 0.75rem;
+  scrollbar-width: none;
+}
+
+.reflection-photo-strip::-webkit-scrollbar { display: none; }
+
+.reflection-photo-item {
+  flex-shrink: 0;
+  width: 80px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.reflection-photo-thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.18s;
+}
+
+.reflection-photo-item:hover .reflection-photo-thumb {
+  transform: scale(1.06);
+}
+
+.reflection-photo-label {
+  font-size: 0.68rem;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
 /* ── Tomorrow Todo ── */
 .tomorrow-todo-section {
   margin-top: 1.25rem;
