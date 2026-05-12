@@ -1,26 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../api.js'
 
-const CATEGORY_COLORS = {
-  work: '#3b82f6',
-  study: '#8b5cf6',
-  health: '#10b981',
-  life: '#f59e0b',
-  hobby: '#ec4899',
-  etc: '#6b7280',
-  general: '#94a3b8'
-}
-
-const CATEGORY_LABEL_MAP = {
-  work: '업무',
-  study: '학습',
-  health: '건강',
-  life: '생활',
-  hobby: '취미',
-  etc: '기타',
-  general: '일반'
-}
-
 const MOOD_EMOJIS = { 1: '😫', 2: '😔', 3: '😐', 4: '😊', 5: '😄' }
 const MOOD_BG = {
   5: '#dcfce7',
@@ -53,6 +33,8 @@ export default function CalendarView({ onDateClick, selectedDate }) {
   const [todosByDate, setTodosByDate] = useState({})
   const [reflectionsByDate, setReflectionsByDate] = useState({})
   const [loading, setLoading] = useState(false)
+  const [catColorMap, setCatColorMap] = useState({})
+  const [catList, setCatList] = useState([])
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -65,6 +47,15 @@ export default function CalendarView({ onDateClick, selectedDate }) {
     return d.toISOString().split('T')[0]
   })
   const weekEndStr = weekDays[6]
+
+  useEffect(() => {
+    api.get('/categories').then(res => {
+      const map = {}
+      res.data.forEach(c => { map[c.name] = c.color })
+      setCatColorMap(map)
+      setCatList(res.data)
+    }).catch(() => {})
+  }, [])
 
   useEffect(() => {
     let startDate, endDate
@@ -179,7 +170,7 @@ export default function CalendarView({ onDateClick, selectedDate }) {
       <div className="day-bars">
         {Object.entries(categoryStats).map(([cat, stats]) => {
           const pct = isFuture ? 100 : Math.round((stats.completed / stats.total) * 100)
-          const barColor = isFuture ? '#d1d5db' : (CATEGORY_COLORS[cat] || '#94a3b8')
+          const barColor = isFuture ? '#d1d5db' : (catColorMap[cat] || '#94a3b8')
           return (
             <div
               key={cat}
@@ -317,7 +308,7 @@ export default function CalendarView({ onDateClick, selectedDate }) {
                         <div
                           key={todo._id}
                           className={`week-todo-title${todo.completed ? ' completed' : ''}`}
-                          style={{ borderLeftColor: CATEGORY_COLORS[todo.category] || '#94a3b8' }}
+                          style={{ borderLeftColor: catColorMap[todo.category] || '#94a3b8' }}
                         >
                           {todo.title}
                         </div>
@@ -340,14 +331,16 @@ export default function CalendarView({ onDateClick, selectedDate }) {
         )}
 
         {/* Legend */}
-        <div className="calendar-view-legend">
-          {Object.entries(CATEGORY_LABEL_MAP).filter(([k]) => k !== 'general').map(([cat, label]) => (
-            <div key={cat} className="legend-item">
-              <span className="legend-dot" style={{ backgroundColor: CATEGORY_COLORS[cat] }} />
-              <span>{label}</span>
-            </div>
-          ))}
-        </div>
+        {catList.length > 0 && (
+          <div className="calendar-view-legend">
+            {catList.map(cat => (
+              <div key={cat._id} className="legend-item">
+                <span className="legend-dot" style={{ backgroundColor: cat.color }} />
+                <span>{cat.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
