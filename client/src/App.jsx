@@ -6,10 +6,10 @@ import ReflectionSection from './components/ReflectionSection'
 import CalendarView from './components/CalendarView'
 import LoginPage from './components/LoginPage'
 import FortuneCard from './components/FortuneCard'
-import ZodiacModal from './components/ZodiacModal'
 import WeatherCard from './components/WeatherCard'
 import StatsView from './components/StatsView'
 import AiCoach from './components/AiCoach'
+import ProfilePage from './components/ProfilePage'
 
 const TABS = [
   { id: 'calendar', label: '캘린더' },
@@ -31,7 +31,7 @@ function App() {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [authError, setAuthError] = useState(false)
-  const [showZodiacModal, setShowZodiacModal] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
 
   // OAuth 콜백 토큰 처리 + 기존 토큰 검증
   useEffect(() => {
@@ -97,9 +97,8 @@ function App() {
     setStreak({ current: 0, best: 0 })
   }
 
-  const handleZodiacSave = (updatedUser) => {
+  const handleProfileSave = (updatedUser) => {
     setUser(updatedUser)
-    setShowZodiacModal(false)
   }
 
   const isViewingToday = selectedDate === today
@@ -116,6 +115,16 @@ function App() {
     return <LoginPage error={authError} />
   }
 
+  if (showProfile) {
+    return (
+      <ProfilePage
+        user={user}
+        onBack={() => setShowProfile(false)}
+        onSave={handleProfileSave}
+      />
+    )
+  }
+
   return (
     <div className="app">
       <header className="header">
@@ -129,22 +138,23 @@ function App() {
               </div>
             )}
             <div className="user-profile">
-              {user.profileImage && (
-                <img
-                  src={user.profileImage}
-                  alt={user.name}
-                  className="profile-avatar"
-                  referrerPolicy="no-referrer"
-                />
-              )}
-              <span className="profile-name">{user.name.split(' ')[0]}</span>
               <button
-                className="zodiac-setting-btn"
-                onClick={() => setShowZodiacModal(true)}
-                title="별자리 설정"
+                className="profile-avatar-btn"
+                onClick={() => setShowProfile(true)}
+                title="프로필 설정"
               >
-                {user.zodiacSign ? { '양자리': '♈', '황소자리': '♉', '쌍둥이자리': '♊', '게자리': '♋', '사자자리': '♌', '처녀자리': '♍', '천칭자리': '♎', '전갈자리': '♏', '사수자리': '♐', '염소자리': '♑', '물병자리': '♒', '물고기자리': '♓' }[user.zodiacSign] : '🔮'}
+                {user.profileImage ? (
+                  <img
+                    src={user.profileImage}
+                    alt={user.name}
+                    className="profile-avatar"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="profile-avatar-fallback">{user.name[0]}</div>
+                )}
               </button>
+              <span className="profile-name">{user.name.split(' ')[0]}</span>
               <button className="logout-btn" onClick={handleLogout}>
                 <span className="logout-text">로그아웃</span>
                 <span className="logout-icon">⏻</span>
@@ -172,7 +182,7 @@ function App() {
             selectedDate={selectedDate}
           />
           <div className="calendar-widgets">
-            <FortuneCard user={user} onSetZodiac={() => setShowZodiacModal(true)} />
+            <FortuneCard user={user} onSetZodiac={() => setShowProfile(true)} />
             <WeatherCard />
           </div>
         </div>
@@ -221,14 +231,6 @@ function App() {
       </main>
 
       <AiCoach />
-
-      {showZodiacModal && (
-        <ZodiacModal
-          currentZodiac={user.zodiacSign}
-          onSave={handleZodiacSave}
-          onClose={() => setShowZodiacModal(false)}
-        />
-      )}
     </div>
   )
 }

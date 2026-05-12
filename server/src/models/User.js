@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true },
   profileImage: { type: String, default: '' },
   zodiacSign: { type: String, enum: ZODIAC_SIGNS, default: null },
+  birthday: { type: String, default: '' },
+  bio: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now }
 });
 
