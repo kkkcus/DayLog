@@ -198,12 +198,13 @@ export default function TodoList({ date }) {
   const totalTodos = todos.length
   const totalCompleted = todos.filter(t => t.completed).length
 
-  const renderTodoCard = (todo) => {
+  const renderTodoCard = (todo, catColor = '#e5e7eb') => {
     const isPhotoCard = todo.completed && todo.photoUrl
     return (
       <div
         key={todo._id}
         className={`todo-card${isPhotoCard ? ' has-photo' : ''}`}
+        style={!isPhotoCard ? { borderColor: catColor, background: catColor + '12' } : undefined}
       >
         {isPhotoCard && (
           <img src={todo.photoUrl} alt="" className="todo-card-bg-img" />
@@ -274,7 +275,7 @@ export default function TodoList({ date }) {
         </div>
         {isExpanded && (
           <div className="todo-grid">
-            {catTodos.map(renderTodoCard)}
+            {catTodos.map(todo => renderTodoCard(todo, catObj.color))}
           </div>
         )}
       </div>
