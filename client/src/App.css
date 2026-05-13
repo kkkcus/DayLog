@@ -3803,6 +3803,237 @@ body {
 
 .crew-leave-btn:hover { background: #fee2e2; }
 
+/* ── 채팅/사진 탭 바 ── */
+.crew-tab-bar {
+  display: flex;
+  border-bottom: 1.5px solid #f3f4f6;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.crew-tab-btn {
+  flex: 1;
+  padding: 0.55rem 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.crew-tab-btn.active {
+  color: #7c3aed;
+  border-bottom-color: #7c3aed;
+  font-weight: 700;
+}
+
+.crew-tab-btn:hover:not(.active) { color: #4b5563; background: #f9fafb; }
+
+.crew-tab-count {
+  background: #7c3aed;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.05rem 0.4rem;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.crew-tab-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ── 사진 그리드 ── */
+.crew-photos-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.crew-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
+}
+
+.crew-photo-card {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  aspect-ratio: 4/5;
+  cursor: pointer;
+  background: #f3f4f6;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.crew-photo-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.crew-photo-card-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.crew-photo-card-sender {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  background: linear-gradient(rgba(0,0,0,0.4), transparent);
+  padding: 0.6rem 0.65rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.crew-photo-sender-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(255,255,255,0.5);
+}
+
+.crew-photo-sender-name {
+  font-size: 0.72rem;
+  color: #fff;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.crew-photo-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  padding: 2rem 0.65rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.crew-photo-card-cat {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.63rem;
+  font-weight: 700;
+  background: rgba(124,58,237,0.85);
+  color: #fff;
+  padding: 0.1rem 0.45rem;
+  border-radius: 10px;
+}
+
+.crew-photo-card-title {
+  font-size: 0.82rem;
+  color: #fff;
+  font-weight: 700;
+  line-height: 1.3;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+
+.crew-photo-card-date {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.7);
+}
+
+.crew-photos-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 3rem 1rem;
+  color: #9ca3af;
+  font-size: 0.88rem;
+  text-align: center;
+  height: 100%;
+}
+
+.crew-photos-empty p:first-child { font-size: 2.5rem; }
+
+/* ── 사진 라이트박스 ── */
+.crew-lightbox-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: min(480px, 90vw);
+  width: 100%;
+  gap: 0.75rem;
+  padding: 0 1rem;
+}
+
+.crew-lightbox-img {
+  width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: 14px;
+}
+
+.crew-lightbox-info {
+  width: 100%;
+  background: #fff;
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.crew-lightbox-sender {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.15rem;
+}
+
+.crew-lightbox-sender-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1f2937;
+  flex: 1;
+}
+
+.crew-lightbox-date {
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+.crew-lightbox-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.4;
+}
+
 /* ── 메시지 ── */
 .crew-messages {
   flex: 1;
@@ -4112,4 +4343,5 @@ body {
   .crew-chat-area.mobile-hidden { display: none; }
   .crew-back-btn { display: block; }
   .crew-msg-wrap { max-width: 85%; }
+  .crew-photos-grid { grid-template-columns: repeat(2, 1fr); }
 }

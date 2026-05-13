@@ -17,6 +17,8 @@ export default function CrewView({ user, autoJoinCode, onJoinHandled }) {
   const [newMsg, setNewMsg] = useState('')
   const [loadingRooms, setLoadingRooms] = useState(true)
   const [sending, setSending] = useState(false)
+  const [activeCrewTab, setActiveCrewTab] = useState('chat') // 'chat' | 'photos'
+  const [lightboxMsg, setLightboxMsg] = useState(null)
 
   // 모달
   const [showCreate, setShowCreate] = useState(false)
@@ -47,10 +49,11 @@ export default function CrewView({ user, autoJoinCode, onJoinHandled }) {
   }, [selectedRoom?._id])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    if (activeCrewTab === 'chat') {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, activeCrewTab])
 
-  // 링크로 접속 시 자동으로 참여 모달 열기
   useEffect(() => {
     if (autoJoinCode) {
       setJoinCode(autoJoinCode)
@@ -84,6 +87,7 @@ export default function CrewView({ user, autoJoinCode, onJoinHandled }) {
   const selectRoom = (room) => {
     setSelectedRoom(room)
     setMessages([])
+    setActiveCrewTab('chat')
     setMobilePanel('chat')
     setTimeout(() => inputRef.current?.focus(), 100)
   }
@@ -168,6 +172,7 @@ export default function CrewView({ user, autoJoinCode, onJoinHandled }) {
   }
 
   const myId = user._id || user.id
+  const photoMessages = messages.filter(m => m.type === 'todo' && m.todoData?.photoUrl)
 
   const renderMessage = (msg) => {
     const isMine = msg.senderId === myId
@@ -207,11 +212,57 @@ export default function CrewView({ user, autoJoinCode, onJoinHandled }) {
     )
   }
 
+  const renderPhotoCard = (msg) => (
+    <div key={msg._id} className="crew-photo-card" onClick={() => setLightboxMsg(msg)}>
+      <img src={msg.todoData.photoUrl} alt={msg.todoData.title} className="crew-photo-card-img" />
+      <div className="crew-photo-card-sender">
+        <span className="crew-photo-sender-avatar">{msg.senderName[0]}</span>
+        <span className="crew-photo-sender-name">{msg.senderName}</span>
+      </div>
+      <div className="crew-photo-card-overlay">
+        {msg.todoData.category && (
+          <span className="crew-photo-card-cat">{msg.todoData.category}</span>
+        )}
+        <p className="crew-photo-card-title">{msg.todoData.title}</p>
+        {msg.todoData.date && (
+          <p className="crew-photo-card-date">{formatDate(msg.todoData.date)}</p>
+        )}
+      </div>
+    </div>
+  )
+
   const openCreate = () => { setRoomName(''); setModalError(''); setShowCreate(true) }
   const openJoin = () => { setJoinCode(''); setModalError(''); setShowJoin(true) }
 
   return (
     <div className="crew-page">
+      {/* ── 사진 라이트박스 ── */}
+      {lightboxMsg && (
+        <div className="lightbox-overlay" onClick={() => setLightboxMsg(null)}>
+          <button className="lightbox-close" onClick={() => setLightboxMsg(null)}>✕</button>
+          <div className="crew-lightbox-content" onClick={e => e.stopPropagation()}>
+            <img
+              src={lightboxMsg.todoData.photoUrl}
+              alt={lightboxMsg.todoData.title}
+              className="crew-lightbox-img"
+            />
+            <div className="crew-lightbox-info">
+              <div className="crew-lightbox-sender">
+                <span className="crew-photo-sender-avatar">{lightboxMsg.senderName[0]}</span>
+                <span className="crew-lightbox-sender-name">{lightboxMsg.senderName}</span>
+                {lightboxMsg.todoData.date && (
+                  <span className="crew-lightbox-date">{formatDate(lightboxMsg.todoData.date)}</span>
+                )}
+              </div>
+              {lightboxMsg.todoData.category && (
+                <span className="crew-photo-card-cat">{lightboxMsg.todoData.category}</span>
+              )}
+              <p className="crew-lightbox-title">{lightboxMsg.todoData.title}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── 사이드바: 방 목록 ── */}
       <div className={`crew-sidebar${mobilePanel === 'chat' ? ' mobile-hidden' : ''}`}>
         <div className="crew-sidebar-header">
@@ -257,6 +308,7 @@ export default function CrewView({ user, autoJoinCode, onJoinHandled }) {
           </div>
         ) : (
           <>
+            {/* 헤더 */}
             <div className="crew-chat-header">
               <button className="crew-back-btn" onClick={() => setMobilePanel('rooms')}>←</button>
               <div className="crew-chat-room-info">
@@ -276,33 +328,72 @@ export default function CrewView({ user, autoJoinCode, onJoinHandled }) {
               <button className="crew-leave-btn" onClick={handleLeave} title="방 나가기">나가기</button>
             </div>
 
-            <div className="crew-messages">
-              {messages.length === 0 ? (
-                <div className="crew-placeholder">
-                  <p>아직 메시지가 없어요</p>
-                  <p>첫 메시지를 보내보세요!</p>
-                </div>
-              ) : (
-                messages.map(msg => renderMessage(msg))
-              )}
-              <div ref={bottomRef} />
+            {/* 탭 바 */}
+            <div className="crew-tab-bar">
+              <button
+                className={`crew-tab-btn${activeCrewTab === 'chat' ? ' active' : ''}`}
+                onClick={() => setActiveCrewTab('chat')}
+              >
+                💬 채팅
+              </button>
+              <button
+                className={`crew-tab-btn${activeCrewTab === 'photos' ? ' active' : ''}`}
+                onClick={() => setActiveCrewTab('photos')}
+              >
+                📷 사진
+                {photoMessages.length > 0 && (
+                  <span className="crew-tab-count">{photoMessages.length}</span>
+                )}
+              </button>
             </div>
 
-            <div className="crew-input-row">
-              <input
-                ref={inputRef}
-                className="crew-input"
-                value={newMsg}
-                onChange={e => setNewMsg(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                placeholder="메시지를 입력하세요..."
-                disabled={sending}
-              />
-              <button
-                className="crew-send-btn"
-                onClick={handleSend}
-                disabled={sending || !newMsg.trim()}
-              >전송</button>
+            {/* 탭 컨텐츠 */}
+            <div className="crew-tab-content">
+              {activeCrewTab === 'chat' ? (
+                <>
+                  <div className="crew-messages">
+                    {messages.length === 0 ? (
+                      <div className="crew-placeholder">
+                        <p>아직 메시지가 없어요</p>
+                        <p>첫 메시지를 보내보세요!</p>
+                      </div>
+                    ) : (
+                      messages.map(msg => renderMessage(msg))
+                    )}
+                    <div ref={bottomRef} />
+                  </div>
+                  <div className="crew-input-row">
+                    <input
+                      ref={inputRef}
+                      className="crew-input"
+                      value={newMsg}
+                      onChange={e => setNewMsg(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
+                      placeholder="메시지를 입력하세요..."
+                      disabled={sending}
+                    />
+                    <button
+                      className="crew-send-btn"
+                      onClick={handleSend}
+                      disabled={sending || !newMsg.trim()}
+                    >전송</button>
+                  </div>
+                </>
+              ) : (
+                <div className="crew-photos-area">
+                  {photoMessages.length === 0 ? (
+                    <div className="crew-photos-empty">
+                      <p>📷</p>
+                      <p>아직 공유된 사진이 없어요</p>
+                      <p>할일 완료 사진을 크루에 공유해보세요!</p>
+                    </div>
+                  ) : (
+                    <div className="crew-photos-grid">
+                      {[...photoMessages].reverse().map(msg => renderPhotoCard(msg))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </>
         )}
