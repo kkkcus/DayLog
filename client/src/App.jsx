@@ -34,17 +34,18 @@ function App() {
   const [authLoading, setAuthLoading] = useState(true)
   const [authError, setAuthError] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const [pendingJoinCode, setPendingJoinCode] = useState(null)
 
   // OAuth 콜백 토큰 처리 + 기존 토큰 검증
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const token = params.get('token')
     const error = params.get('error')
+    const join = params.get('join')
 
-    if (token) {
-      localStorage.setItem('daylog_token', token)
-      window.history.replaceState({}, '', '/')
-    }
+    if (token) localStorage.setItem('daylog_token', token)
+    if (join) localStorage.setItem('daylog_pending_join', join.toUpperCase())
+    if (token || join) window.history.replaceState({}, '', '/')
 
     if (error) {
       setAuthError(true)
@@ -64,6 +65,11 @@ function App() {
     try {
       const res = await api.get('/auth/me')
       setUser(res.data)
+      const pending = localStorage.getItem('daylog_pending_join')
+      if (pending) {
+        setPendingJoinCode(pending)
+        localStorage.removeItem('daylog_pending_join')
+      }
     } catch {
       localStorage.removeItem('daylog_token')
     } finally {
@@ -210,7 +216,11 @@ function App() {
         )}
 
         {activeTab === 'crew' && (
-          <CrewView user={user} />
+          <CrewView
+            user={user}
+            autoJoinCode={pendingJoinCode}
+            onJoinHandled={() => setPendingJoinCode(null)}
+          />
         )}
 
         {activeTab === 'reflection' && (

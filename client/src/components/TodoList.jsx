@@ -262,14 +262,7 @@ export default function TodoList({ date }) {
             onChange={() => toggleTodo(todo._id)}
             className="todo-card-check"
           />
-          <div className="todo-card-top-actions">
-            <button
-              className="todo-card-share"
-              onClick={e => { e.stopPropagation(); openShare(todo) }}
-              title="크루에 공유"
-            >↗</button>
-            <button className="todo-card-del" onClick={() => deleteTodo(todo._id)}>✕</button>
-          </div>
+          <button className="todo-card-del" onClick={() => deleteTodo(todo._id)}>✕</button>
         </div>
 
         {isPhotoCard ? (
@@ -286,6 +279,11 @@ export default function TodoList({ date }) {
                 onClick={e => { e.stopPropagation(); removePhoto(todo._id) }}
                 title="사진 삭제"
               >✕ 삭제</button>
+              <button
+                className="todo-card-photo-camera"
+                onClick={e => { e.stopPropagation(); openShare(todo) }}
+                title="크루에 공유"
+              >↗ 공유</button>
             </div>
           </div>
         ) : (
@@ -300,6 +298,11 @@ export default function TodoList({ date }) {
                 {uploadingId === todo._id ? '⏳ 업로드 중...' : '📷 인증 사진 추가'}
               </button>
             )}
+            <button
+              className="todo-card-share"
+              onClick={e => { e.stopPropagation(); openShare(todo) }}
+              title="크루에 공유"
+            >↗ 공유</button>
           </div>
         )}
       </div>

@@ -70,6 +70,26 @@ router.post('/join', async (req, res) => {
   }
 })
 
+// 방 이름 수정 (방장만)
+router.patch('/:id', async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.id)
+    if (!room) return res.status(404).json({ error: '방을 찾을 수 없습니다' })
+    if (room.owner.toString() !== req.user.id.toString())
+      return res.status(403).json({ error: '방장만 이름을 변경할 수 있습니다' })
+
+    const { name } = req.body
+    if (!name?.trim()) return res.status(400).json({ error: '방 이름을 입력해주세요' })
+
+    room.name = name.trim()
+    await room.save()
+    await room.populate('members', 'name profileImage')
+    res.json(room)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 // 방 나가기
 router.delete('/:id/leave', async (req, res) => {
   try {

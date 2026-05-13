@@ -10,7 +10,7 @@ const formatDate = (dateStr) => {
   return `${d.getMonth() + 1}월 ${d.getDate()}일`
 }
 
-export default function CrewView({ user }) {
+export default function CrewView({ user, autoJoinCode, onJoinHandled }) {
   const [rooms, setRooms] = useState([])
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [messages, setMessages] = useState([])
@@ -21,9 +21,12 @@ export default function CrewView({ user }) {
   // 모달
   const [showCreate, setShowCreate] = useState(false)
   const [showJoin, setShowJoin] = useState(false)
+  const [showRename, setShowRename] = useState(false)
   const [roomName, setRoomName] = useState('')
   const [joinCode, setJoinCode] = useState('')
+  const [renameValue, setRenameValue] = useState('')
   const [modalError, setModalError] = useState('')
+  const [renameError, setRenameError] = useState('')
   const [copied, setCopied] = useState(false)
 
   // 모바일: 'rooms' | 'chat'
@@ -46,6 +49,16 @@ export default function CrewView({ user }) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // 링크로 접속 시 자동으로 참여 모달 열기
+  useEffect(() => {
+    if (autoJoinCode) {
+      setJoinCode(autoJoinCode)
+      setModalError('')
+      setShowJoin(true)
+      onJoinHandled?.()
+    }
+  }, [autoJoinCode])
 
   const fetchRooms = async () => {
     setLoadingRooms(true)
@@ -103,6 +116,20 @@ export default function CrewView({ user }) {
     }
   }
 
+  const handleRename = async () => {
+    if (!renameValue.trim() || !selectedRoom) return
+    setRenameError('')
+    try {
+      const res = await api.patch(`/rooms/${selectedRoom._id}`, { name: renameValue.trim() })
+      setRooms(prev => prev.map(r => r._id === res.data._id ? res.data : r))
+      setSelectedRoom(res.data)
+      setShowRename(false)
+      setRenameValue('')
+    } catch (err) {
+      setRenameError(err.response?.data?.error || '이름 변경에 실패했습니다')
+    }
+  }
+
   const handleLeave = async () => {
     if (!selectedRoom || !window.confirm(`'${selectedRoom.name}' 크루를 나가시겠어요?`)) return
     try {
@@ -132,8 +159,9 @@ export default function CrewView({ user }) {
     }
   }
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(selectedRoom.inviteCode).then(() => {
+  const copyLink = () => {
+    const link = `${window.location.origin}/?join=${selectedRoom.inviteCode}`
+    navigator.clipboard.writeText(link).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     })
@@ -232,11 +260,18 @@ export default function CrewView({ user }) {
             <div className="crew-chat-header">
               <button className="crew-back-btn" onClick={() => setMobilePanel('rooms')}>←</button>
               <div className="crew-chat-room-info">
-                <p className="crew-chat-room-name">{selectedRoom.name}</p>
+                <div className="crew-room-name-row">
+                  <p className="crew-chat-room-name">{selectedRoom.name}</p>
+                  <button
+                    className="crew-rename-btn"
+                    onClick={() => { setRenameValue(selectedRoom.name); setRenameError(''); setShowRename(true) }}
+                    title="이름 수정"
+                  >✏️</button>
+                </div>
                 <p className="crew-chat-room-meta">멤버 {selectedRoom.members?.length || 0}명</p>
               </div>
-              <button className="crew-code-btn" onClick={copyCode} title="초대 코드 복사">
-                {copied ? '복사됨!' : selectedRoom.inviteCode}
+              <button className="crew-code-btn" onClick={copyLink} title="초대 링크 복사">
+                {copied ? '✓ 복사됨' : '🔗 링크 공유'}
               </button>
               <button className="crew-leave-btn" onClick={handleLeave} title="방 나가기">나가기</button>
             </div>
@@ -315,6 +350,29 @@ export default function CrewView({ user }) {
             <div className="crew-modal-btns">
               <button className="btn btn-secondary" onClick={() => setShowJoin(false)}>취소</button>
               <button className="btn btn-primary" onClick={handleJoin} disabled={joinCode.length !== 6}>입장</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── 크루 이름 수정 모달 ── */}
+      {showRename && (
+        <div className="modal-overlay" onClick={() => setShowRename(false)}>
+          <div className="crew-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="crew-modal-title">크루 이름 수정</h3>
+            <input
+              className="crew-modal-input"
+              value={renameValue}
+              onChange={e => setRenameValue(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleRename()}
+              placeholder="새 크루 이름 (최대 30자)"
+              maxLength={30}
+              autoFocus
+            />
+            {renameError && <p className="crew-modal-error">{renameError}</p>}
+            <div className="crew-modal-btns">
+              <button className="btn btn-secondary" onClick={() => setShowRename(false)}>취소</button>
+              <button className="btn btn-primary" onClick={handleRename} disabled={!renameValue.trim()}>저장</button>
             </div>
           </div>
         </div>
