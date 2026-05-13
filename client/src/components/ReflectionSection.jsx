@@ -258,6 +258,16 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
 
           <div className="reflection-section">
             <h3>✅ 완료한 일</h3>
+            {completedTodos.some(t => t.photoUrl) && (
+              <div className="reflection-photo-strip">
+                {completedTodos.filter(t => t.photoUrl).map(todo => (
+                  <div key={todo._id} className="reflection-photo-item" onClick={() => setLightboxUrl(todo.photoUrl)}>
+                    <img src={todo.photoUrl} alt={todo.title} className="reflection-photo-thumb" />
+                    <p className="reflection-photo-label">{todo.title}</p>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="reflection-text">
               {reflection.done
                 ? reflection.done.split('\n').map((line, i) => line.trim() && <p key={i}>{line}</p>)
