@@ -56,7 +56,7 @@ export default function ReflectionSection({ date, onReflectionUpdate }) {
 
   const fetchCompletedTodos = async () => {
     try {
-      const response = await api.get(`/todos?date=${today}`)
+      const response = await api.get(`/todos?date=${targetDate}`)
       setCompletedTodos(response.data.filter(todo => todo.completed))
     } catch (err) {
       console.error('Error fetching completed todos:', err)
