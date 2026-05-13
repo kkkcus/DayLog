@@ -33,6 +33,13 @@ export default function TodoList({ date }) {
   const fileInputRef = useRef(null)
   const activeTodoIdRef = useRef(null)
 
+  // Share to crew
+  const [crewRooms, setCrewRooms] = useState(null) // null = 미로딩
+  const [shareTarget, setShareTarget] = useState(null)
+  const [shareMsg, setShareMsg] = useState('')
+  const [sharing, setSharing] = useState(false)
+  const [shareSuccess, setShareSuccess] = useState(null) // roomName
+
   useEffect(() => { fetchCategories() }, [])
   useEffect(() => { fetchTodos() }, [targetDate])
   useEffect(() => { fetchFrequentTodos() }, [])
@@ -181,6 +188,45 @@ export default function TodoList({ date }) {
     }
   }
 
+  // ── Share to Crew ──
+  const openShare = async (todo) => {
+    setShareTarget(todo)
+    setShareMsg('')
+    if (!crewRooms) {
+      try {
+        const res = await api.get('/rooms')
+        setCrewRooms(res.data)
+      } catch (err) {
+        console.error('크루 목록 로딩 실패:', err)
+        setCrewRooms([])
+      }
+    }
+  }
+
+  const handleShare = async (room) => {
+    if (!shareTarget || sharing) return
+    setSharing(true)
+    try {
+      await api.post(`/rooms/${room._id}/messages`, {
+        type: 'todo',
+        content: shareMsg.trim(),
+        todoData: {
+          title: shareTarget.title,
+          photoUrl: shareTarget.photoUrl || null,
+          category: shareTarget.category,
+          date: shareTarget.date,
+        },
+      })
+      setShareSuccess(room.name)
+      setShareTarget(null)
+      setTimeout(() => setShareSuccess(null), 2500)
+    } catch (err) {
+      console.error('공유 실패:', err)
+    } finally {
+      setSharing(false)
+    }
+  }
+
   // ── Grouping ──
   const groupTodos = () => {
     const groups = {}
@@ -216,7 +262,14 @@ export default function TodoList({ date }) {
             onChange={() => toggleTodo(todo._id)}
             className="todo-card-check"
           />
-          <button className="todo-card-del" onClick={() => deleteTodo(todo._id)}>✕</button>
+          <div className="todo-card-top-actions">
+            <button
+              className="todo-card-share"
+              onClick={e => { e.stopPropagation(); openShare(todo) }}
+              title="크루에 공유"
+            >↗</button>
+            <button className="todo-card-del" onClick={() => deleteTodo(todo._id)}>✕</button>
+          </div>
         </div>
 
         {isPhotoCard ? (
@@ -290,6 +343,67 @@ export default function TodoList({ date }) {
         <div className="lightbox-overlay" onClick={() => setLightboxUrl(null)}>
           <button className="lightbox-close" onClick={() => setLightboxUrl(null)}>✕</button>
           <img src={lightboxUrl} alt="인증 사진" className="lightbox-img" onClick={e => e.stopPropagation()} />
+        </div>
+      )}
+
+      {/* 공유 성공 토스트 */}
+      {shareSuccess && (
+        <div className="share-toast">✓ '{shareSuccess}'에 공유됐어요!</div>
+      )}
+
+      {/* 크루 공유 모달 */}
+      {shareTarget && (
+        <div className="modal-overlay" onClick={() => setShareTarget(null)}>
+          <div className="crew-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="crew-modal-title">크루에 공유</h3>
+
+            {/* 미리보기 */}
+            <div className="share-preview">
+              {shareTarget.photoUrl && (
+                <img src={shareTarget.photoUrl} alt="" className="share-preview-img" />
+              )}
+              <div>
+                <p className="share-preview-title">{shareTarget.title}</p>
+                <p className="share-preview-cat">{shareTarget.category} · {shareTarget.date}</p>
+              </div>
+            </div>
+
+            <input
+              className="crew-modal-input"
+              value={shareMsg}
+              onChange={e => setShareMsg(e.target.value)}
+              placeholder="한마디 추가 (선택)"
+              maxLength={100}
+            />
+
+            {crewRooms === null ? (
+              <p style={{ fontSize: '0.85rem', color: '#9ca3af', textAlign: 'center', padding: '0.5rem 0' }}>로딩 중...</p>
+            ) : crewRooms.length === 0 ? (
+              <p style={{ fontSize: '0.85rem', color: '#9ca3af', textAlign: 'center', padding: '0.5rem 0' }}>
+                참여한 크루가 없어요. 크루 탭에서 만들거나 입장하세요!
+              </p>
+            ) : (
+              <div className="share-room-list">
+                {crewRooms.map(room => (
+                  <button
+                    key={room._id}
+                    className="share-room-btn"
+                    onClick={() => handleShare(room)}
+                    disabled={sharing}
+                  >
+                    <span className="share-room-avatar">{room.name[0]}</span>
+                    <span className="share-room-name">{room.name}</span>
+                    <span className="share-room-count">멤버 {room.members?.length || 0}명</span>
+                    <span className="share-room-arrow">→</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <button className="btn btn-secondary" style={{ width: '100%', marginTop: '0.5rem' }} onClick={() => setShareTarget(null)}>
+              취소
+            </button>
+          </div>
         </div>
       )}
 

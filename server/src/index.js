@@ -13,6 +13,7 @@ import uploadRoutes from './routes/upload.js';
 import categoryRoutes from './routes/categories.js';
 import aiRoutes from './routes/ai.js';
 import userRoutes from './routes/users.js';
+import roomRoutes from './routes/rooms.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -82,6 +83,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/rooms', roomRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 서버가 포트 ${PORT}에서 실행 중입니다`);

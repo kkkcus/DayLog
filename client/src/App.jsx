@@ -10,12 +10,14 @@ import WeatherCard from './components/WeatherCard'
 import StatsView from './components/StatsView'
 import AiCoach from './components/AiCoach'
 import ProfilePage from './components/ProfilePage'
+import CrewView from './components/CrewView'
 
 const TABS = [
   { id: 'calendar', label: '캘린더' },
   { id: 'todo', label: '할일' },
   { id: 'reflection', label: '회고' },
   { id: 'stats', label: '통계' },
+  { id: 'crew', label: '크루' },
 ]
 
 const formatDate = (dateStr) => {
@@ -205,6 +207,10 @@ function App() {
 
         {activeTab === 'stats' && (
           <StatsView streak={streak} />
+        )}
+
+        {activeTab === 'crew' && (
+          <CrewView user={user} />
         )}
 
         {activeTab === 'reflection' && (
